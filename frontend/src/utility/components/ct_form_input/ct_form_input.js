@@ -141,9 +141,9 @@ CTFormInput.propTypes = {
 };
 
 CTFormInput.defaultProps = {
-    formControlClass: FormControl.defaultProps.bsClass,
-    formGroupClass: FormGroup.defaultProps.bsClass,
-    labelClass: ControlLabel.defaultProps.bsClass,
+    formControlClass: "form-control nt-search-input",
+    formGroupClass: "form-group white-bg",
+    labelClass: "control-label select-label",
     errorClass: "error",
     defaultClass: undefined
 };

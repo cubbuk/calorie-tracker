@@ -11,10 +11,10 @@ class LoginService {
             if (!validationResult) {
                 let {password, username} = user;
                 if (password === "123456" && username === "deneme") {
-                    let user = {username: "deneme", name: "Deneme", surname: "Kullanıcısı"};
+                    let user = {username: "deneme", name: "John", surname: "Doe"};
                     return appState.setUser(user);
                 } else {
-                    throw {errorMessage: "Girdiğiniz bilgileri kontrol ediniz"};
+                    throw {errorMessage: "You entered invalid credentials, please try again"};
                 }
             } else {
                 throw validationResult;

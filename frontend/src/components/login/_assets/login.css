@@ -5,11 +5,3 @@
     justify-content: center;
     align-items: center;
 }
-
-.login-panel {
-    border: 1px solid #05B4C7;
-}
-
-.login-panel div.panel-heading {
-    background-color: #05B4C7;
-}

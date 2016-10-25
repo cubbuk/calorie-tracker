@@ -147,8 +147,6 @@ class SearchCalories extends React.Component {
     deleteRecord(caloryRecordToBeDeleted) {
         let {caloryRecords = []} = this.state;
         caloryRecords = caloryRecords.filter(existingRecord => existingRecord._id !== caloryRecordToBeDeleted._id);
-        console.log(caloryRecordToBeDeleted);
-        console.log(caloryRecords);
         this.setState({caloryRecords, caloryRecordToBeDeleted: undefined});
     }
 
@@ -157,7 +155,7 @@ class SearchCalories extends React.Component {
         let cancelDeletionOfCaleryRecord = this.cancelDeletionOfCaleryRecord.bind(this);
         return <div>
             {loaded && caloryRecords.length === 0 && <div>no items</div>}
-            <Row>
+            <Row className="margin-bottom-20 margin-top-20">
                 <Col xs={12}>
                     <Button bsStyle="primary" onClick={() => this.setState({showNewCaloryRecordModal: true})}>Add new
                         record</Button>

@@ -38,12 +38,12 @@ class Login extends React.Component {
         let {error, formSubmitted, username, password} = this.state;
         return <div className="login-page">
             <IndexNavbar/>
-            <Panel header="Giriş" className="login-panel">
+            <Panel header="Login" bsStyle="primary">
                 <CTError error={error}/>
                 <form onSubmit={this.onLogin.bind(this, username, password)}>
                     <CTFormInput name="username"
                                  autoFocus
-                                 label="Kullanıcı Adı"
+                                 label="Username"
                                  formControlClass={this.DEFAULT_FORM_COCTROL_CLASS}
                                  formGroupClass={this.DEFAULT_FORM_GROUP_CLASS}
                                  labelClass={this.DEFAULT_LABEL_CLASS}
@@ -52,7 +52,7 @@ class Login extends React.Component {
                                  validationFunction={(username) => validate({username}, loginConstraints.username(), {fullMessages: false})}
                                  onValueChange={this.onValueChange.bind(this, "username")}/>
                     <CTFormInput name="password"
-                                 label="Şifre"
+                                 label="Password"
                                  formControlClass={this.DEFAULT_FORM_COCTROL_CLASS}
                                  formGroupClass={this.DEFAULT_FORM_GROUP_CLASS}
                                  labelClass={this.DEFAULT_LABEL_CLASS}
@@ -63,7 +63,7 @@ class Login extends React.Component {
                     <Button bsStyle="primary"
                             className="pull-right"
                             type="submit"
-                            onClick={this.onLogin.bind(this, username, password)}>Giriş</Button>
+                            onClick={this.onLogin.bind(this, username, password)}>Login</Button>
                 </form>
             </Panel>
         </div>
