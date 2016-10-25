@@ -19,6 +19,26 @@ const calorieRoute = function (path, server) {
             next();
         })
     });
+
+    server.put(path + "/:id", function (req, res, next) {
+        calorieRecordsService.updateCalorieRecord(req.params.id, req.body, req.user._id).then(result => {
+            res.send(200, result);
+            next();
+        }).catch(error => {
+            res.send(500, {error});
+            next();
+        })
+    });
+
+    server.del(path + "/:id", function (req, res, next) {
+        calorieRecordsService.deleteCalorieRecord(req.params.id).then(result => {
+            res.send(200, result);
+            next();
+        }).catch(error => {
+            res.send(500, {error});
+            next();
+        })
+    });
 };
 
 

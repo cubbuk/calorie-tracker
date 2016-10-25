@@ -53,6 +53,17 @@ class BaseAPI {
         });
     }
 
+    put(method, body) {
+        body = body || {};
+        return this.send(method, {
+            method: "PUT", headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+    }
+
     uploadImage(method, imageFile) {
         let formData = new FormData();
         formData.append("type", "file");

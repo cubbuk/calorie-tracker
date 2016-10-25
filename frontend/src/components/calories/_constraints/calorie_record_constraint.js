@@ -1,5 +1,5 @@
-const _ = require("lodash");
-class CaloryRecordConstraints {
+import _ from "lodash";
+class CalorieRecordConstraints {
 
     description() {
         return {
@@ -15,12 +15,12 @@ class CaloryRecordConstraints {
         };
     }
 
-    caloryAmount() {
+    calorieAmount() {
         return {
-            caloryAmount: {
-                presence: {message: "Please enter calory amount"},
+            calorieAmount: {
+                presence: {message: "Please enter calorie amount"},
                 numericality: {
-                    notValid: "Please enter a valid calory amount",
+                    notValid: "Please enter a valid calorie amount",
                     greaterThanOrEqualTo: 0,
                     notGreaterThanOrEqualTo: "Needs to be more than or equal to %{count}",
                     lessThanOrEqualTo: 2500,
@@ -30,10 +30,10 @@ class CaloryRecordConstraints {
         };
     }
 
-    caloryRecordConstraints() {
-        return _.extend({}, this.description(), this.caloryAmount());
+    calorieRecordConstraints() {
+        return _.extend({}, this.description(), this.calorieAmount());
     }
 
 }
 
-module.exports = new CaloryRecordConstraints();
+export default new CalorieRecordConstraints();
