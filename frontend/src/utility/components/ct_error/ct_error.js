@@ -1,6 +1,7 @@
 import _ from "lodash";
 import React, {PropTypes} from "react";
 import CTAlert from "../ct_alert/ct_alert";
+import "./assets/css/ct_error.css";
 
 class CTError extends React.Component {
     constructor(props, context, ...args) {
@@ -28,7 +29,7 @@ class CTError extends React.Component {
 
     render() {
         let {bsStyle, error, show, ...otherProps} = this.props;
-        return <CTAlert bsStyle="danger" show={!_.isEmpty(error)} {...otherProps}>{this.renderError(error)}</CTAlert>
+        return <CTAlert bsStyle="danger" className="ct_error" show={!_.isEmpty(error)} {...otherProps}>{this.renderError(error)}</CTAlert>
     }
 }
 

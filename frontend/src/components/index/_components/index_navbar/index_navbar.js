@@ -5,6 +5,7 @@ import loginService from "../../../login/_services/login_service";
 import appState from "../../../../utility/app_state";
 import {Link} from "react-router";
 import logger from "../../../../utility/services/logger";
+import userService from "../../../user/services/user_service";
 
 class IndexNavbar extends React.Component {
     constructor(props, context, ...args) {
@@ -33,7 +34,8 @@ class IndexNavbar extends React.Component {
             </Navbar.Header>
             <Navbar.Collapse>
                 {user && <Nav>
-                    <IndexNavbarItem to="calories/search">Calories List</IndexNavbarItem>
+                    {userService.hasUserRole(user) && <IndexNavbarItem to="calories/search">Calories List</IndexNavbarItem>}
+                    {userService.hasManagerRole(user) && <IndexNavbarItem to="calories/search">Users List</IndexNavbarItem>}
                 </Nav>}
                 <Nav pullRight>
                     {user && <NavDropdown eventKey={3} title={name + " " + surname} id="basic-nav-dropdown">
