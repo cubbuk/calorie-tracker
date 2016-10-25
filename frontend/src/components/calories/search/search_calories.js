@@ -3,7 +3,7 @@ import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
 import {Button, Col, Modal, Row, Table} from "react-bootstrap";
-import {CTConfirmModal} from "../../../utility/components/_ct_components";
+import {CTAlert, CTConfirmModal, CTError} from "../../../utility/components/_ct_components";
 import CalorieRecordFrom from "../_components/calorie_record_form/calorie_record_form";
 import calorieRecordsService from "../_services/calorie_records_service";
 
@@ -26,7 +26,7 @@ class SearchCalories extends React.Component {
     }
 
     selectCalorieRecordToBeUpdated(calorieRecord) {
-        this.setState({calorieRecordToBeUpdated: _.clone(calorieRecord)});
+        this.setState({calorieRecordToBeUpdated: _.clone(calorieRecord), updateError: undefined});
     }
 
     updateCalorieRecord(calorieRecord) {
@@ -52,7 +52,7 @@ class SearchCalories extends React.Component {
             <td><Button bsStyle="info"
                         onClick={this.selectCalorieRecordToBeUpdated.bind(this, calorieRecord)}>Update</Button></td>
             <td><Button bsStyle="primary"
-                        onClick={() => this.setState({calorieRecordToBeDeleted: calorieRecord})}>Delete</Button></td>
+                        onClick={() => this.setState({calorieRecordToBeDeleted: calorieRecord, deleteError: undefined})}>Delete</Button></td>
         </tr>
     }
 
@@ -83,7 +83,7 @@ class SearchCalories extends React.Component {
         return view;
     }
 
-    renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating) {
+    renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError) {
         let view = null;
         if (calorieRecordToBeUpdated) {
             let onCancelUpdate = this.onCancelUpdate.bind(this);
@@ -95,6 +95,7 @@ class SearchCalories extends React.Component {
                     <Row>
                         <Col xs={12}>
                             <Loader loaded={!isUpdating}/>
+                            <CTError error={updateError}/>
                             <CalorieRecordFrom calorieRecord={calorieRecordToBeUpdated}
                                                disabled={isUpdating}
                                                onCancel={onCancelUpdate}
@@ -126,7 +127,7 @@ class SearchCalories extends React.Component {
             }).catch(addError => this.setState({addError, isAdding: false}));
     }
 
-    renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding) {
+    renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding, addError) {
         let view = null;
         if (showNewCalorieRecordModal) {
             let onCancelNewRecord = this.onCancelNewRecord.bind(this);
@@ -138,6 +139,7 @@ class SearchCalories extends React.Component {
                     <Row>
                         <Col xs={12}>
                             <Loader loaded={!isAdding}/>
+                            <CTError error={addError}/>
                             <CalorieRecordFrom disabled={isAdding}
                                                onCancel={onCancelNewRecord}
                                                onSave={this.addNewCalorieRecord.bind(this)}/>
@@ -168,12 +170,13 @@ class SearchCalories extends React.Component {
 
     render() {
         let {calorieRecords = [], calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
+        let {error, deleteError, addError, updateError} = this.state;
         let cancelDeletionOfCaleryRecord = this.cancelDeletionOfCaleryRecord.bind(this);
         return <div>
-            {loaded && calorieRecords.length === 0 && <div>no items</div>}
+            <CTError error={error}/>
             <Row className="margin-bottom-20 margin-top-20">
                 <Col xs={12}>
-                    <Button bsStyle="primary" onClick={() => this.setState({showNewCalorieRecordModal: true})}>Add new
+                    <Button bsStyle="primary" onClick={() => this.setState({addError: undefined, showNewCalorieRecordModal: true})}>Add new
                         record</Button>
                 </Col>
             </Row>
@@ -183,11 +186,15 @@ class SearchCalories extends React.Component {
                             onConfirm={this.deleteRecord.bind(this, calorieRecordToBeDeleted)}
                             onHide={cancelDeletionOfCaleryRecord}>
                 <Loader loaded={!isDeleting}/>
+                <CTError error={deleteError}/>
                 Do you confirm deleting this record?
             </CTConfirmModal>
             <Loader loaded={loaded}>
-                {this.renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding)}
-                {this.renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating)}
+                {this.renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding, addError)}
+                {this.renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError)}
+                <CTAlert show={calorieRecords.length === 0}>
+                    There isn't any record.
+                </CTAlert>
                 {calorieRecords.length > 0 && <Table>
                     <thead>
                     <tr>

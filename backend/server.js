@@ -2,6 +2,7 @@
 const restify = require("restify");
 const requestUtility = require("./requestUtility");
 const server = restify.createServer({name: "calorie tracker backend"});
+const mongoose = require("mongoose");
 
 /*************CORS start*************/
 server.use(restify.CORS({
@@ -16,13 +17,13 @@ server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
 server.use((req, res, next) => {
-    req.user = {username: "deneme", _id: "1", name: "Mehmet", surname: "Çubuk"};
+    req.user = {username: "deneme", _id: mongoose.Types.ObjectId(), name: "Mehmet", surname: "Çubuk"};
     next();
-})
+});
+
 
 var basePath = "api";
 require("./routes/calorie_records_route")(basePath + "/calorie-records/", server);
-
 
 server.listen(8320, function () {
     console.log("at %s: %s listening at %s", module.filename, server.name, server.url);

@@ -102,6 +102,8 @@ class BaseAPI {
                 return response.json().then(result => {
                     if (response.status === 500) {
                         throw result;
+                    } else if (response.status === 400) {
+                        throw result;
                     } else {
                         if (result.error) {
                             throw result;

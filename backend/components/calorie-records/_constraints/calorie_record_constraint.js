@@ -1,6 +1,22 @@
 const _ = require("lodash");
 class CalorieRecordConstraints {
 
+    id() {
+        return {
+            _id: {
+                presence: {message: "Please enter record id"}
+            }
+        }
+    }
+
+    recordDate() {
+        return {
+            recordDate: {
+                presence: {message: "Please enter a record date"}
+            }
+        }
+    }
+
     description() {
         return {
             description: {
@@ -31,7 +47,7 @@ class CalorieRecordConstraints {
     }
 
     calorieRecordConstraints() {
-        return _.extend({}, this.description(), this.calorieAmount());
+        return _.extend({}, this.recordDate(), this.description(), this.calorieAmount());
     }
 
 }
