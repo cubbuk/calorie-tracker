@@ -35,6 +35,8 @@ class SearchCalories extends React.Component {
             <td>{text}</td>
             <td>{calories}</td>
             <td>{moment(createdAt).format("DD/MM/YYYY HH:mm")}</td>
+            <td><Button bsStyle="info">Edit</Button></td>
+            <td><Button bsStyle="primary">Delete</Button></td>
         </tr>
     }
 
@@ -53,6 +55,8 @@ class SearchCalories extends React.Component {
                     <th>Description</th>
                     <th>Calories</th>
                     <th>Date</th>
+                    <th>Update</th>
+                    <th>Delete</th>
                 </tr>
                 </thead>
                 <tbody>

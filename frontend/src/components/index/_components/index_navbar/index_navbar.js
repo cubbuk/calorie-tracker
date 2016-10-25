@@ -1,7 +1,7 @@
 import React, {PropTypes} from "react";
 import {MenuItem, Navbar, Nav, NavDropdown} from "react-bootstrap";
 import IndexNavbarItem from "../index_navbar_item/index_navbar_item";
-import loginService from "../../login/_services/login_service";
+import loginService from "../../../login/_services/login_service";
 import appState from "../../../../utility/app_state";
 import {Link} from "react-router";
 import logger from "../../../../utility/services/logger";

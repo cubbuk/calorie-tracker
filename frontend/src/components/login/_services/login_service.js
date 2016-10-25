@@ -1,7 +1,7 @@
 import Promise from "bluebird";
 import validate from "validate.js";
 import loginConstraints from "../_constraints/login_constraints";
-import appState from "../../../../utility/app_state";
+import appState from "../../../utility/app_state";
 
 class LoginService {
 
