@@ -1,0 +1,26 @@
+{
+  "name": "project-mehmet-cubuk-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^0.8.5",
+    "chai": "^3.5.0",
+    "chance": "^1.0.1",
+    "lodash": "4.16.4",
+    "minimist": "1.2.0",
+    "mkdirp": "0.5.1",
+    "moment": "^2.11.2",
+    "mongodb": "^2.1.7",
+    "bluebird": "3.4.6",
+    "restify": "^4.0.4",
+    "uuid": "2.0.3",
+    "validate.js": "^0.10.0"
+  },
+  "author": "",
+  "license": "ISC"
+}

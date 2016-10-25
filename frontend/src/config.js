@@ -1,7 +1,7 @@
 let config = {
     local: {
-        baseURL: "http://0.0.0.0:8080/",
-        apiPath: "http://0.0.0.0:8080/api/",
+        baseURL: "http://0.0.0.0:8320/",
+        apiPath: "http://0.0.0.0:8320/api/",
         loggingEnabled: true
     },
     "pre-prod": {

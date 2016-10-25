@@ -2,7 +2,7 @@ import validate from "validate.js";
 import React, {PropTypes} from "react";
 import {Button} from "react-bootstrap";
 import {CTFormInput} from "../../../../utility/components/_ct_components";
-import caloriesService from "../../_services/calories_service";
+import caloriesService from "../../_services/calorie_records_service";
 import caloryRecordConstraints from "../../_constraints/calory_record_constraint";
 
 class CaloryRecordForm extends React.Component {

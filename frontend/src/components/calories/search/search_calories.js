@@ -1,10 +1,10 @@
 import _ from "lodash";
-import Promise from "bluebird";
 import moment from "moment";
 import React, {PropTypes} from "react";
 import {Button, Col, Modal, Row, Table} from "react-bootstrap";
 import {CTConfirmModal} from "../../../utility/components/_ct_components";
 import CaloryRecordFrom from "../_components/calory_record_form/calory_record_form";
+import calorieRecordsService from "../_services/calorie_records_service";
 
 class SearchCalories extends React.Component {
     constructor(props, context, ...args) {
@@ -13,23 +13,15 @@ class SearchCalories extends React.Component {
     }
 
     componentWillMount() {
-        this.retrieveCaloryRecords().then((caloryRecords) => this.setState({
-            caloryRecords,
+        this.retrieveCaloryRecords().then((results = {records: [], count: 0}) => this.setState({
+            caloryRecords: results.records,
+            totalCount: results.count,
             loaded: true
         })).catch(error => this.setState({error, loaded: true}));
     }
 
     retrieveCaloryRecords() {
-        return Promise.try(() => {
-            return [{_id: 1, description: "Orange", caloryAmount: 120, createdAt: new Date()},
-                {
-                    _id: 2,
-                    description: "Apple",
-                    caloryAmount: 90,
-                    createdAt: new Date()
-                },
-                {_id: 3, description: "Bread", caloryAmount: 250, createdAt: new Date()}];
-        })
+        return calorieRecordsService.retrieveCalorieRecords();
     }
 
     selectCaloryRecordToBeUpdated(caloryRecord) {
