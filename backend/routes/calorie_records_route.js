@@ -2,8 +2,10 @@ const calorieRecordsService = require("../components/calorie-records/_services/c
 const calorieRoute = function (path, server) {
     server.get(path, function (req, res, next) {
         calorieRecordsService.retrieveCalorieRecords().then(records => {
-            res.send(200, {records: records, count: records.length});
-            next();
+            setTimeout(() => {
+                res.send(200, {records: records, count: records.length});
+                next();
+            }, 1000);
         }).catch(error => {
             res.send(500, {error});
             next();

@@ -38,10 +38,11 @@ class calorieRecordForm extends React.Component {
     }
 
     render() {
+        let {disabled} = this.props;
         let {calorieRecord = {}, formSubmitted} = this.state;
         let {description, calorieAmount} = calorieRecord;
         let onSaveClicked = this.onSaveClicked.bind(this, calorieRecord);
-        return <form onSubmit={onSaveClicked}>
+        return <form onSubmit={onSaveClicked} disabled={disabled}>
             <CTFormInput name="description"
                          autoFocus
                          label="Description"
@@ -64,6 +65,7 @@ class calorieRecordForm extends React.Component {
 
 calorieRecordForm.propTypes = {
     calorieRecord: PropTypes.object,
+    disabled: PropTypes.bool,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired
 };

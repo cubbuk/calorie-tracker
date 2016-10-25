@@ -1,5 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
+import Loader from "react-loader";
 import React, {PropTypes} from "react";
 import {Button, Col, Modal, Row, Table} from "react-bootstrap";
 import {CTConfirmModal} from "../../../utility/components/_ct_components";
@@ -82,7 +83,7 @@ class SearchCalories extends React.Component {
         return view;
     }
 
-    renderCalorieUpdateModal(calorieRecordToBeUpdated) {
+    renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating) {
         let view = null;
         if (calorieRecordToBeUpdated) {
             let onCancelUpdate = this.onCancelUpdate.bind(this);
@@ -93,7 +94,9 @@ class SearchCalories extends React.Component {
                 <Modal.Body>
                     <Row>
                         <Col xs={12}>
+                            <Loader loaded={!isUpdating}/>
                             <CalorieRecordFrom calorieRecord={calorieRecordToBeUpdated}
+                                               disabled={isUpdating}
                                                onCancel={onCancelUpdate}
                                                onSave={this.updateCalorieRecord.bind(this)}/>
                         </Col>
@@ -123,7 +126,7 @@ class SearchCalories extends React.Component {
             }).catch(addError => this.setState({addError, isAdding: false}));
     }
 
-    renderNewCalorieRecordModal(showNewCalorieRecordModal) {
+    renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding) {
         let view = null;
         if (showNewCalorieRecordModal) {
             let onCancelNewRecord = this.onCancelNewRecord.bind(this);
@@ -134,7 +137,9 @@ class SearchCalories extends React.Component {
                 <Modal.Body>
                     <Row>
                         <Col xs={12}>
-                            <CalorieRecordFrom onCancel={onCancelNewRecord}
+                            <Loader loaded={!isAdding}/>
+                            <CalorieRecordFrom disabled={isAdding}
+                                               onCancel={onCancelNewRecord}
                                                onSave={this.addNewCalorieRecord.bind(this)}/>
                         </Col>
                     </Row>
@@ -162,7 +167,7 @@ class SearchCalories extends React.Component {
     }
 
     render() {
-        let {calorieRecords = [], calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showNewCalorieRecordModal} = this.state;
+        let {calorieRecords = [], calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
         let cancelDeletionOfCaleryRecord = this.cancelDeletionOfCaleryRecord.bind(this);
         return <div>
             {loaded && calorieRecords.length === 0 && <div>no items</div>}
@@ -172,28 +177,32 @@ class SearchCalories extends React.Component {
                         record</Button>
                 </Col>
             </Row>
-            <CTConfirmModal show={!!calorieRecordToBeDeleted}
+            <CTConfirmModal disabled={isDeleting}
+                            show={!!calorieRecordToBeDeleted}
                             onCancel={cancelDeletionOfCaleryRecord}
                             onConfirm={this.deleteRecord.bind(this, calorieRecordToBeDeleted)}
                             onHide={cancelDeletionOfCaleryRecord}>
+                <Loader loaded={!isDeleting}/>
                 Do you confirm deleting this record?
             </CTConfirmModal>
-            {this.renderNewCalorieRecordModal(showNewCalorieRecordModal)}
-            {this.renderCalorieUpdateModal(calorieRecordToBeUpdated)}
-            {loaded && calorieRecords.length > 0 && <Table>
-                <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Calories</th>
-                    <th>Date</th>
-                    <th>Update</th>
-                    <th>Delete</th>
-                </tr>
-                </thead>
-                <tbody>
-                {calorieRecords.map(this.renderCalorieRecord.bind(this))}
-                </tbody>
-            </Table>}
+            <Loader loaded={loaded}>
+                {this.renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding)}
+                {this.renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating)}
+                {calorieRecords.length > 0 && <Table>
+                    <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Calories</th>
+                        <th>Date</th>
+                        <th>Update</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {calorieRecords.map(this.renderCalorieRecord.bind(this))}
+                    </tbody>
+                </Table>}
+            </Loader>
         </div>;
     }
 }

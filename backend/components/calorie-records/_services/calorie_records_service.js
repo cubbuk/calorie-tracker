@@ -28,7 +28,6 @@ class CalorieRecordsService {
                 record.createdAt = new Date();
                 record.createdBy = savedBy;
                 mockRecords.push(record);
-                console.log(record);
                 return record;
             } else {
                 return {error: validationResult};

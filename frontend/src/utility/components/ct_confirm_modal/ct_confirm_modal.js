@@ -9,15 +9,15 @@ class CTConfirmModal extends React.Component {
     }
 
     render() {
-        let {children, cancelTitle, confirmTitle, onCancel, onConfirm, show, title, ...otherProps} = this.props;
+        let {children, cancelTitle, confirmTitle, disabled, onCancel, onConfirm, show, title, ...otherProps} = this.props;
         let view = null;
         if (show) {
             view = <Modal show {...otherProps}>
                 {title && <Modal.Title>{title}</Modal.Title>}
                 <Modal.Body>{children}</Modal.Body>
                 <Modal.Footer>
-                    <Button className="pull-left" onClick={onCancel}>{cancelTitle}</Button>
-                    <Button bsStyle="primary" onClick={onConfirm}>{confirmTitle}</Button>
+                    <Button disabled={disabled} className="pull-left" onClick={onCancel}>{cancelTitle}</Button>
+                    <Button disabled={disabled} bsStyle="primary" onClick={onConfirm}>{confirmTitle}</Button>
                 </Modal.Footer>
             </Modal>;
         }
@@ -26,6 +26,7 @@ class CTConfirmModal extends React.Component {
 }
 
 CTConfirmModal.propTypes = {
+    disabled: PropTypes.bool,
     show: PropTypes.bool,
     cancelTitle: PropTypes.string,
     confirmTitle: PropTypes.string,
