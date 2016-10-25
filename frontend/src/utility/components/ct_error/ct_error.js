@@ -35,7 +35,6 @@ class CTError extends React.Component {
 
     render() {
         let {bsStyle, error, show, ...otherProps} = this.props;
-        console.log(error);
         return <CTAlert bsStyle="danger" className="ct_error"
                         show={!_.isEmpty(error)} {...otherProps}>{this.renderError(error)}</CTAlert>
     }
