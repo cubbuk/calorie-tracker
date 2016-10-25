@@ -4,12 +4,16 @@ import baseAPI from "../../../utility/services/base_api";
 
 class CaloriesService {
 
-    isValidCaloryRecord(caloryRecord) {
-        return !validate(caloryRecord, caloryRecordConstraint.caloryRecordConstraints());
+    isValidCaloryRecord(calorieRecord) {
+        return !validate(calorieRecord, caloryRecordConstraint.caloryRecordConstraints());
     }
 
     retrieveCalorieRecords() {
         return baseAPI.get("calorie-records");
+    }
+
+    addNewCaloryRecord(calorieRecord) {
+        return baseAPI.post("calorie-records", calorieRecord);
     }
 }
 

@@ -106,9 +106,11 @@ class SearchCalories extends React.Component {
     }
 
     addNewCaloryRecord(newCaloryRecord) {
-        let {caloryRecords = []} = this.state;
-        caloryRecords.push(newCaloryRecord);
-        this.setState({caloryRecords, showNewCaloryRecordModal: false});
+        calorieRecordsService.addNewCaloryRecord(newCaloryRecord).then(() => {
+            let {caloryRecords = []} = this.state;
+            caloryRecords.push(newCaloryRecord);
+            this.setState({caloryRecords, showNewCaloryRecordModal: false});
+        }).catch(error => this.setState({error}));
     }
 
     renderNewCaloryRecordModal(showNewCaloryRecordModal) {

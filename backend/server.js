@@ -15,6 +15,11 @@ server.on("uncaughtException", requestUtility.uncaughtException);
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
 
+server.use((req, res, next) => {
+    req.user = {username: "deneme", _id: "1", name: "Mehmet", surname: "Çubuk"};
+    next();
+})
+
 var basePath = "api";
 require("./routes/calorie_records_route")(basePath + "/calorie-records/", server);
 

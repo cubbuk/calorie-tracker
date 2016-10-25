@@ -9,6 +9,16 @@ const calorieRoute = function (path, server) {
             next();
         })
     });
+
+    server.post(path, function (req, res, next) {
+        calorieRecordsService.addNewCalorieRecord(req.body, req.user._id).then(result => {
+            res.send(200, result);
+            next();
+        }).catch(error => {
+            res.send(500, {error});
+            next();
+        })
+    });
 };
 
 
