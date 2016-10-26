@@ -24,6 +24,7 @@ server.use((req, res, next) => {
 
 var basePath = "api";
 require("./routes/calorie_records_route")(basePath + "/calorie-records/", server);
+require("./routes/users_route")(basePath + "/users/", server);
 
 server.listen(8320, function () {
     console.log("at %s: %s listening at %s", module.filename, server.name, server.url);

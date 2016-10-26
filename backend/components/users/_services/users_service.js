@@ -9,7 +9,7 @@ const securityService = require("../../../utility/_services/security_service");
 class UsersService {
 
     retrieveUser(recordId) {
-        return userMongooseCollection.findOne({_id: recordId});
+        return userMongooseCollection.findOne({_id: recordId}).lean();
     }
 
     retrieveUsers() {
@@ -19,27 +19,34 @@ class UsersService {
     addNewUser(user = {}, savedBy) {
         return Promise.try(() => {
             const validationResult = this.validateUser(user);
+            user = Object.assign({}, user);
             if (!validationResult) {
-                return this.hashPasswordOfUser(user).then(user => {
-                    user._id = mongoose.Types.ObjectId();
-                    user.createdAt = new Date();
-                    user.createdBy = savedBy;
-                    return userMongooseCollection.create(user);
-                }).catch(error => {
-                    if (errorService.isValidationError(error) || errorService.isUniqueKeyConstraintError(error)) {
-                        return error;
-                    } else {
-                        throw error;
-                    }
-                });
+                const passwordValidation = this.validatePassword(user.password);
+                if (!passwordValidation) {
+                    return this.hashPasswordOfUser(user).then(user => {
+                        user._id = mongoose.Types.ObjectId();
+                        user.createdAt = new Date();
+                        user.createdBy = savedBy;
+                        return userMongooseCollection.create(user).then(result => result.toObject());
+                    }).catch(error => {
+                        if (errorService.isValidationError(error) || errorService.isUniqueKeyConstraintError(error)) {
+                            return error;
+                        } else {
+                            throw error;
+                        }
+                    });
+                } else {
+                    return errorService.createValidationError(passwordValidation);
+                }
             } else {
                 return errorService.createValidationError(validationResult);
             }
         });
     }
 
-    updateUser(userId, user, savedBy) {
+    updateUser(userId, user = {}, savedBy) {
         return Promise.try(() => {
+            user = Object.assign({}, user);
             const validationResult = this.validateUser(user);
             if (!validationResult) {
                 delete user._id;
@@ -76,9 +83,9 @@ class UsersService {
     hashPasswordOfUser(user) {
         return Promise.try(() => {
             if (user && user.password) {
-                let validtationResult = this.validatePassword(user.password);
-                if (validtationResult) {
-                    throw errorService.createValidationError(validtationResult);
+                let validationResult = this.validatePassword(user.password);
+                if (validationResult) {
+                    throw errorService.createValidationError(validationResult);
                 } else {
                     return securityService.hashPassword(user.password).then((hashedPassword) => {
                         user.password = hashedPassword;

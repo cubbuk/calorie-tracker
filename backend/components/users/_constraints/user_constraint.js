@@ -59,7 +59,7 @@ class UserConstraints {
     }
 
     userConstraints() {
-        return _.extend({}, this.username(), this.password(), this.fullName(), this.caloriesPerDay());
+        return _.extend({}, this.username(), this.fullName(), this.caloriesPerDay());
     }
 
 }
