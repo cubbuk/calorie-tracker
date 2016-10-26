@@ -31,6 +31,10 @@ class SecurityService {
             });
         });
     }
+
+    receiveAuthenticationHeader(request = {headers: {}}) {
+        return request.headers.authorization;
+    }
 }
 
 module.exports = new SecurityService();

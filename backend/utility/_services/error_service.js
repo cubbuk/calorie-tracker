@@ -1,6 +1,7 @@
 const ERROR_TYPES = {
     VALIDATION_ERRORS: 1,
-    UNIQUE_KEY_ERROR: 2
+    UNIQUE_KEY_ERROR: 2,
+    CUSTOM_ERROR: 3
 };
 
 class ErrorService {
@@ -18,6 +19,10 @@ class ErrorService {
 
     isUniqueKeyConstraintError(errorObject = {}) {
         return errorObject.code === 11000 || errorObject.type === ERROR_TYPES.UNIQUE_KEY_ERROR;
+    }
+
+    createCustomError(error, errorMessage) {
+        return {error: errorMessage || error, originalError: error, type: ERROR_TYPES.CUSTOM_ERROR}
     }
 
     resultToStatusCode(result = {}) {

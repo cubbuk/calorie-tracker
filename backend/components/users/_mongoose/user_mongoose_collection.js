@@ -1,5 +1,3 @@
-/*globals require, module*/
-"use strict";
 (function () {
     const mongooseConnections = require("../../../utility/mongoose_connections.js");
     const mongoose = require("mongoose");

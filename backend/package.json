@@ -8,6 +8,7 @@
     "dev": "node server.js"
   },
   "dependencies": {
+    "atob": "2.0.3",
     "bcrypt": "^0.8.5",
     "bluebird": "3.4.6",
     "chai": "^3.5.0",

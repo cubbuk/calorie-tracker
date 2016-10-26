@@ -31,7 +31,10 @@ class Login extends React.Component {
                 }
                 this.setState({error: undefined, formSubmitted: true});
             })
-            .catch(error => this.setState({error, formSubmitted: true}))
+            .catch(error => {
+                console.log(error);
+                this.setState({error, formSubmitted: true})
+            })
     }
 
     render() {

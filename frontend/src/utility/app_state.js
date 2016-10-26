@@ -1,4 +1,6 @@
 import Promise from "bluebird";
+import publisher from "./services/publisher";
+import events from "./constants/events";
 function AppState() {
     let appState = this;
     let tripFilters = {isReturnFlight: true};
@@ -6,6 +8,10 @@ function AppState() {
     var progress = 2;
     let user;
     let USER_KEY = "user";
+    appState.onAuthenticationError = () => {
+        return appState.clearUser();
+    };
+    publisher.subscribeToEvent(events.AUTHENTICATION_ERROR, appState.onAuthenticationError.bind(appState))
 
     appState.initializeAppState = () => {
         return Promise.try(() => {

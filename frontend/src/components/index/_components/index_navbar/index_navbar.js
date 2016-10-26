@@ -5,7 +5,7 @@ import loginService from "../../../login/_services/login_service";
 import appState from "../../../../utility/app_state";
 import {Link} from "react-router";
 import logger from "../../../../utility/services/logger";
-import userService from "../../../user/services/user_service";
+import userRoleService from "../../../users/_services/user_role_service";
 
 class IndexNavbar extends React.Component {
     constructor(props, context, ...args) {
@@ -24,7 +24,7 @@ class IndexNavbar extends React.Component {
 
     render() {
         let user = appState.getUser();
-        let {name, surname} = user || {};
+        let {fullName} = user || {};
         return <Navbar fixedTop>
             <Navbar.Header>
                 <Navbar.Brand>
@@ -34,11 +34,11 @@ class IndexNavbar extends React.Component {
             </Navbar.Header>
             <Navbar.Collapse>
                 {user && <Nav>
-                    {userService.hasUserRole(user) && <IndexNavbarItem to="calories/search">Calories List</IndexNavbarItem>}
-                    {userService.hasManagerRole(user) && <IndexNavbarItem to="users/search">Users List</IndexNavbarItem>}
+                    {userRoleService.hasUserRole(user) && <IndexNavbarItem to="calories/search">Calories List</IndexNavbarItem>}
+                    {userRoleService.hasManagerRole(user) && <IndexNavbarItem to="users/search">Users List</IndexNavbarItem>}
                 </Nav>}
                 <Nav pullRight>
-                    {user && <NavDropdown eventKey={3} title={name + " " + surname} id="basic-nav-dropdown">
+                    {user && <NavDropdown eventKey={3} title={fullName} id="basic-nav-dropdown">
                         <MenuItem eventKey={3.1}><Link to="settings">Settings</Link></MenuItem>
                         <MenuItem eventKey={3.2} onClick={this.onLogout.bind(this)}>Logout</MenuItem>
                     </NavDropdown>}

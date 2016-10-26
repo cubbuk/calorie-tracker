@@ -5,11 +5,16 @@ const userConstraint = require("../_constraints/user_constraint");
 const userMongooseCollection = require("../_mongoose/user_mongoose_collection");
 const errorService = require("../../../utility/_services/error_service");
 const securityService = require("../../../utility/_services/security_service");
+const userSessionTokenService = require("./user_session_token_service");
 
 class UsersService {
 
     retrieveUser(recordId) {
         return userMongooseCollection.findOne({_id: recordId}).lean();
+    }
+
+    findUserByUsername(username) {
+        return userMongooseCollection.findOne({username: username}).lean();
     }
 
     retrieveUsers() {
@@ -117,6 +122,27 @@ class UsersService {
                 }
             } else {
                 return user;
+            }
+        });
+    }
+
+    authenticateUser(username, password) {
+        const AuthenticationError = new Error("Invalid credentials");
+        return this.findUserByUsername(username).then(user => {
+            if (user) {
+                return securityService.checkPassword(password, user.password).then(function (result) {
+                    if (result) {
+                        delete user.password;
+                        var token = Math.random().toString(36).substr(2);
+                        return userSessionTokenService.upsertSessionToken(token, user).then(function () {
+                            return {authenticated: true, token: token, user: user};
+                        })
+                    } else {
+                        return {authenticated: false};
+                    }
+                });
+            } else {
+                throw AuthenticationError;
             }
         });
     }

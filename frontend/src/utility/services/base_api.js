@@ -1,5 +1,8 @@
+import btoa from "btoa";
 import Promise from "bluebird";
 import config from "../../config.js";
+import publisher from "./publisher";
+import events from "../constants/events";
 
 let TOKEN_KEY = "token";
 class BaseAPI {
@@ -40,6 +43,17 @@ class BaseAPI {
 
     delete(method) {
         return this.send(method, {method: "DELETE"});
+    }
+
+    login(method, username, password){
+        const auth = btoa(username + ":" + password); //BinaryToAsciiEncoding
+        return this.send(method, {
+            method: "POST", headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "authorization": auth
+            }
+        });
     }
 
     post(method, body) {
@@ -98,6 +112,8 @@ class BaseAPI {
         return Promise.try(() => {
             if (response.status === 401) {
                 this.clearToken();
+                publisher.emitEvent(events.AUTHENTICATION_ERROR);
+                return response.json();
             } else {
                 return response.json().then(result => {
                     if (response.status === 500) {

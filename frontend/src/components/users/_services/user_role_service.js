@@ -5,7 +5,7 @@ const USER_ROLE_MAP = {
 };
 let userRoles = Object.keys(USER_ROLE_MAP).map(userRole => USER_ROLE_MAP[userRole]);
 
-class UserService {
+class UserRoleService {
 
     getUserRoleMap() {
         return USER_ROLE_MAP;
@@ -33,4 +33,4 @@ class UserService {
     }
 }
 
-export default new UserService();
+export default new UserRoleService();
