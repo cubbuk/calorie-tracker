@@ -34,9 +34,9 @@ const usersService = require("../components/users/_services/users_service");
             }
         );
 
-        server.post(LOGIN_URL, function (req, res, next) {
-                var authenticationHeader = asciiToBinaryEncoder(securityService.receiveAuthenticationHeader(req) || "");
-                var authenticationTokens = authenticationHeader.split(":");
+        server.post(LOGIN_URL, (req, res, next) => {
+                const authenticationHeader = asciiToBinaryEncoder(securityService.receiveAuthenticationHeader(req) || "");
+                const authenticationTokens = authenticationHeader.split(":");
                 if (authenticationTokens.length === 2) {
                     usersService.authenticateUser(authenticationTokens[0], authenticationTokens[1]).then(result => {
                         res.send(200, result);
@@ -51,7 +51,7 @@ const usersService = require("../components/users/_services/users_service");
             }
         );
 
-        server.post("api/logout", function (req, res, next) {
+        server.post("api/logout", (req, res, next) => {
             const sessionToken = securityService.receiveAuthenticationHeader(req);
             userSessionTokenService.deleteSessionToken(sessionToken).then(result => {
                 res.send(errorService.resultToStatusCode(result), {});

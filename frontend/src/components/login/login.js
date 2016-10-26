@@ -56,6 +56,7 @@ class Login extends React.Component {
                                  onValueChange={this.onValueChange.bind(this, "username")}/>
                     <CTFormInput name="password"
                                  label="Password"
+                                 type="password"
                                  formControlClass={this.DEFAULT_FORM_COCTROL_CLASS}
                                  formGroupClass={this.DEFAULT_FORM_GROUP_CLASS}
                                  labelClass={this.DEFAULT_LABEL_CLASS}
