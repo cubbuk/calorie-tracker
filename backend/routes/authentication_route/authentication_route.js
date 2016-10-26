@@ -1,8 +1,8 @@
 const asciiToBinaryEncoder = require("atob"); //AsciiToBinaryEncoding
-const securityService = require("../utility/_services/security_service");
-const errorService = require("../utility/_services/error_service");
-const userSessionTokenService = require("../components/users/_services/user_session_token_service");
-const usersService = require("../components/users/_services/users_service");
+const securityService = require("../../utility/_services/security_service");
+const errorService = require("../../utility/_services/error_service");
+const userSessionTokenService = require("../../components/users/_services/user_session_token_service");
+const usersService = require("../../components/users/_services/users_service");
 
 const authenticationRoute = function (path, server) {
 

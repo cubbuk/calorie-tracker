@@ -1,6 +1,6 @@
-const usersService = require("../components/users/_services/users_service");
-const userRouteMiddleware = require("../components/users/_middlewares/user_route_middlewares");
-const errorService = require("../utility/_services/error_service");
+const usersService = require("../../components/users/_services/users_service");
+const userRouteMiddleware = require("./user_route_middlewares");
+const errorService = require("../../utility/_services/error_service");
 
 const usersRoute = function (path, server) {
 

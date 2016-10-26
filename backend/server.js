@@ -25,9 +25,9 @@ server.use((req, res, next) => {
 server.use(authenticationMiddleware.authenticateRequests.bind(authenticationMiddleware));
 
 var basePath = "api";
-require("./routes/authentication_route")(basePath, server);
-require("./routes/calorie_records_route")(basePath + "/calorie-records/", server);
-require("./routes/users_route")(basePath + "/users/", server);
+require("./routes/authentication_route/authentication_route")(basePath, server);
+require("./routes/calorie_records_route/calorie_records_route")(basePath + "/calorie-records/", server);
+require("./routes/users_route/users_route")(basePath + "/users/", server);
 
 server.listen(8320, function () {
     console.log("at %s: %s listening at %s", module.filename, server.name, server.url);

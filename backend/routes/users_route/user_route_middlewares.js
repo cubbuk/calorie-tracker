@@ -1,4 +1,4 @@
-const userRoleService = require("../_services/user_role_service");
+const userRoleService = require("../../components/users/_services/user_role_service");
 const userRoleMap = userRoleService.getUserRoleMap();
 
 class UserRouteMiddleware {

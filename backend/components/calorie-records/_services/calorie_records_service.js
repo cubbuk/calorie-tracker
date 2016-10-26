@@ -22,7 +22,7 @@ class CalorieRecordsService {
             if (!validationResult) {
                 record._id = mongoose.Types.ObjectId();
                 record.createdAt = new Date();
-                record.createdBy = savedBy;
+                record.createdBy = record.createdBy || savedBy;
                 return calorieRecordMongooseCollection.create(record);
             } else {
                 return errorService.createValidationError(validationResult);
