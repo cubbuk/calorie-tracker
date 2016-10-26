@@ -6,6 +6,7 @@ import {Button, Col, Modal, Row, Table} from "react-bootstrap";
 import {CTAlert, CTConfirmModal, CTError} from "../../../utility/components/_ct_components";
 import CalorieRecordFrom from "../_components/calorie_record_form/calorie_record_form";
 import calorieRecordsService from "../_services/calorie_records_service";
+import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
 import appState from "../../../utility/app_state";
 
@@ -46,7 +47,7 @@ class SearchCalories extends React.Component {
     renderCalorieRecord(calorieRecord = {}) {
         let {_id, description, calorieAmount, createdAt, createdByUser = {}} = calorieRecord;
         return <tr key={_id}>
-            {this.hasAdminRole && <td>{createdByUser.fullName}</td>}
+            {this.hasAdminRole && <td>{usersService.toFullNameWithUsername(createdByUser)}</td>}
             <td>{description}</td>
             <td>{calorieAmount}</td>
             <td>{moment(createdAt).format("DD/MM/YYYY HH:mm")}</td>
@@ -181,7 +182,7 @@ class SearchCalories extends React.Component {
                 {calorieRecords.length > 0 && <Table bordered responsive>
                     <thead>
                     <tr>
-                        {this.hasAdminRole && <th>Created By</th>}
+                        {this.hasAdminRole && <th>User</th>}
                         <th>Description</th>
                         <th>Calories</th>
                         <th>Date</th>

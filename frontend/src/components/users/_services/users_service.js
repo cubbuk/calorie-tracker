@@ -24,6 +24,18 @@ class UsersService {
     deleteUser(userId) {
         return baseAPI.delete(baseURL + "/delete/" + userId);
     }
+
+    toFullNameWithUsername(user = {}) {
+        let {fullName = "", username = ""} = user;
+        let result = "";
+        if (fullName) {
+            result +=  fullName + " ";
+        }
+        if (username) {
+            result += "(" + username + ")";
+        }
+        return result.trim();
+    }
 }
 
 export default new UsersService();
