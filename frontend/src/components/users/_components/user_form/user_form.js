@@ -4,6 +4,7 @@ import {Button} from "react-bootstrap";
 import {CTFormInput} from "../../../../utility/components/_ct_components";
 import usersService from "../../_services/users_service";
 import userConstraints from "../../_constraints/user_constraint";
+import utilityService from "../../../../utility/services/utility_service";
 
 class userForm extends React.Component {
 
@@ -22,6 +23,10 @@ class userForm extends React.Component {
 
     onSaveClicked(user, e) {
         e.preventDefault();
+        this.saveUser(user);
+    }
+
+    saveUser(user) {
         if (usersService.isValidUser(user)) {
             let {onSave} = this.props;
             if (onSave instanceof Function) {
@@ -37,12 +42,19 @@ class userForm extends React.Component {
         this.setState({user});
     }
 
+    onKeyPress(user, e) {
+        if (utilityService.isEnterKeyEvent(e)) {
+            this.saveUser(user);
+        }
+    }
+
     render() {
         let {disabled, isUpdate} = this.props;
         let {user = {}, formSubmitted} = this.state;
         let {username, fullName, password, caloriesPerDay} = user;
         let onSaveClicked = this.onSaveClicked.bind(this, user);
-        return <form onSubmit={onSaveClicked} disabled={disabled}>
+        return <form onSubmit={onSaveClicked} disabled={disabled}
+                     onKeyPress={this.onKeyPress.bind(this, user)}>
             <CTFormInput name="username"
                          autoFocus
                          label="Username"

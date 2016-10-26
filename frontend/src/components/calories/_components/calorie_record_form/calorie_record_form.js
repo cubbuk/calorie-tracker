@@ -4,6 +4,7 @@ import {Button} from "react-bootstrap";
 import {CTFormInput} from "../../../../utility/components/_ct_components";
 import caloriesService from "../../_services/calorie_records_service";
 import calorieRecordConstraints from "../../_constraints/calorie_record_constraint";
+import utilityService from "../../../../utility/services/utility_service";
 
 class calorieRecordForm extends React.Component {
 
@@ -14,14 +15,18 @@ class calorieRecordForm extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         let {calorieRecord = {}} = this.props;
-        let {calorieRecord : nextcalorieRecord = {}} = nextProps
-        if (calorieRecord._id !== nextcalorieRecord._id) {
+        let {calorieRecord : nextCalorieRecord = {}} = nextProps
+        if (calorieRecord._id !== nextCalorieRecord._id) {
             this.setState({calorieRecord: nextProps.calorieRecord, formSubmitted: false});
         }
     }
 
     onSaveClicked(calorieRecord, e) {
         e.preventDefault();
+        this.saveCalorieRecord(calorieRecord);
+    }
+
+    saveCalorieRecord(calorieRecord){
         if (caloriesService.isValidCalorieRecord(calorieRecord)) {
             let {onSave} = this.props;
             if (onSave instanceof Function) {
@@ -37,12 +42,19 @@ class calorieRecordForm extends React.Component {
         this.setState({calorieRecord});
     }
 
+    onKeyPress(calorieRecord, e) {
+        if (utilityService.isEnterKeyEvent(e)) {
+            this.saveCalorieRecord(calorieRecord);
+        }
+    }
+
     render() {
         let {disabled} = this.props;
         let {calorieRecord = {}, formSubmitted} = this.state;
         let {description, calorieAmount} = calorieRecord;
         let onSaveClicked = this.onSaveClicked.bind(this, calorieRecord);
-        return <form onSubmit={onSaveClicked} disabled={disabled}>
+        return <form onSubmit={onSaveClicked} disabled={disabled}
+                     onKeyPress={this.onKeyPress.bind(this, calorieRecord)}>
             <CTFormInput name="description"
                          autoFocus
                          label="Description"
