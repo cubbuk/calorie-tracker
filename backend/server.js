@@ -1,6 +1,7 @@
 "use strict";
 const restify = require("restify");
-const requestUtility = require("./requestUtility");
+const requestUtility = require("./utility/_middlewares/requestUtility");
+const authenticationMiddleware = require("./utility/_middlewares/authenticationMiddlewares");
 const server = restify.createServer({name: "calorie tracker backend"});
 const mongoose = require("mongoose");
 
@@ -21,9 +22,10 @@ server.use((req, res, next) => {
     next();
 });
 
+server.use(authenticationMiddleware.authenticateRequests.bind(authenticationMiddleware));
 
 var basePath = "api";
-require("./routes/authentication_route")(server);
+require("./routes/authentication_route")(basePath, server);
 require("./routes/calorie_records_route")(basePath + "/calorie-records/", server);
 require("./routes/users_route")(basePath + "/users/", server);
 
