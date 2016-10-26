@@ -45,7 +45,7 @@ class BaseAPI {
         return this.send(method, {method: "DELETE"});
     }
 
-    login(method, username, password){
+    login(method, username, password) {
         const auth = btoa(username + ":" + password); //BinaryToAsciiEncoding
         return this.send(method, {
             method: "POST", headers: {
@@ -114,6 +114,8 @@ class BaseAPI {
                 this.clearToken();
                 publisher.emitEvent(events.AUTHENTICATION_ERROR);
                 return response.json();
+            } else if (response.status === 403) {
+                publisher.emitEvent(events.AUTHORIZATION_ERROR);
             } else {
                 return response.json().then(result => {
                     if (response.status === 500) {
