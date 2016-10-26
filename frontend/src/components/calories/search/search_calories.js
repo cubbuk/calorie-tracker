@@ -45,12 +45,12 @@ class SearchCalories extends React.Component {
     }
 
     renderCalorieRecord(calorieRecord = {}) {
-        let {_id, description, calorieAmount, createdAt, recordOwner = {}} = calorieRecord;
+        let {_id, description, calorieAmount, recordDate, recordOwner = {}} = calorieRecord;
         return <tr key={_id}>
             {this.hasAdminRole && <td>{usersService.toFullNameWithUsername(recordOwner)}</td>}
             <td>{description}</td>
             <td>{calorieAmount}</td>
-            <td>{moment(createdAt).format("DD/MM/YYYY HH:mm")}</td>
+            <td>{moment(recordDate).format("DD/MM/YYYY HH:mm")}</td>
             <td><Button bsStyle="info"
                         onClick={this.selectCalorieRecordToBeUpdated.bind(this, calorieRecord)}>Update</Button></td>
             <td><Button bsStyle="primary"

@@ -1,6 +1,8 @@
+import moment from "moment";
 import validate from "validate.js";
 import React, {PropTypes} from "react";
 import {Button} from "react-bootstrap";
+import {Calendar} from "react-date-picker";
 import {CTFormInput} from "../../../../utility/components/_ct_components";
 import SelectUser from "../../../users/_components/select_user/select_user";
 import caloriesService from "../../_services/calorie_records_service";
@@ -12,11 +14,12 @@ class calorieRecordForm extends React.Component {
     constructor(props, context, ...args) {
         super(props, context, ...args);
         this.state = {calorieRecord: this.props.calorieRecord};
+        this.dateFormat = "DD/MM/YYYY HH:mm:ss";
     }
 
     componentWillReceiveProps(nextProps) {
         let {calorieRecord = {}} = this.props;
-        let {calorieRecord : nextCalorieRecord = {}} = nextProps
+        let {calorieRecord : nextCalorieRecord = {}} = nextProps;
         if (calorieRecord._id !== nextCalorieRecord._id) {
             this.setState({calorieRecord: nextProps.calorieRecord, formSubmitted: false});
         }
@@ -49,10 +52,17 @@ class calorieRecordForm extends React.Component {
         }
     }
 
+    onDateChanged(dateString, {dateMoment, timestamp}) {
+        let {calorieRecord = {}} = this.state;
+        calorieRecord.recordDate = dateMoment.toDate();
+        console.log(calorieRecord.recordDate);
+    }
+
+
     render() {
         let {adminMode, disabled} = this.props;
         let {calorieRecord = {}, formSubmitted} = this.state;
-        let {description, calorieAmount, recordOwnerId} = calorieRecord;
+        let {description, calorieAmount, recordOwnerId, recordDate} = calorieRecord;
         let onSaveClicked = this.onSaveClicked.bind(this, calorieRecord);
         return <form onSubmit={onSaveClicked} disabled={disabled}
                      onKeyPress={this.onKeyPress.bind(this, calorieRecord)}>
@@ -78,6 +88,11 @@ class calorieRecordForm extends React.Component {
                          value={calorieAmount}
                          validationFunction={(calorieAmount) => validate({calorieAmount}, calorieRecordConstraints.calorieAmount(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "calorieAmount")}/>
+            <CTFormInput label="Record Date">
+                <Calendar dateFormat={this.dateFormat}
+                          defaultDate={moment(recordDate).format(this.dateFormat)}
+                          onChange={this.onDateChanged.bind(this)}/>
+            </CTFormInput>
             <Button bsStyle="primary" className="pull-right" onClick={onSaveClicked}>Save Record</Button>
             <Button bsStyle="default" className="pull-left" onClick={this.props.onCancel}>Cancel</Button>
         </form>
