@@ -31,15 +31,11 @@ class UsersService {
         return Promise.try(() => {
             const allUserIds = [];
             records.forEach(record => {
-                allUserIds.push(record.createdBy);
-                if (record.updatedBy) {
-                    allUserIds.push(record.updatedBy);
-                }
+                allUserIds.push(record.recordOwnerId);
             });
             return this.userIdsToUserMap(allUserIds).then(userMap => {
                 records.forEach(record => {
-                    record.createdByUser = userMap[record.createdBy];
-                    record.updatedByUser = userMap[record.updatedBy];
+                    record.recordOwner = userMap[record.recordOwnerId];
                 });
                 return records;
             });

@@ -28,7 +28,7 @@ const calorieRoute = function (path, server) {
     server.get(path + "/list-of-user", function (req, res, next) {
         let {body = {}, user = {}} = req;
         let {searchParams = {}, orderParams = {}} = body;
-        searchParams.createdBy = user._id;
+        searchParams.recordOwnerId = user._id;
         calorieRecordsService.retrieveCalorieRecords(searchParams, orderParams).then(records => {
             res.send(errorService.resultToStatusCode(records), {records: records, count: records.length});
             next();

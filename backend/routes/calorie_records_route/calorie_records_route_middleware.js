@@ -9,7 +9,7 @@ class CalorieRecordsRouteMiddleware {
                 next();
             } else {
                 return calorieRecordsService.retrieveCalorieRecord(req.params.id).then((record = {}) => {
-                    if (record.createdBy.toString() === req.user._id.toString()) {
+                    if (record.recordOwnerId.toString() === req.user._id.toString()) {
                         next();
                     } else {
                         res.send(403);

@@ -11,6 +11,7 @@
         description: {type: String, trim: true},
         calorieAmount: Number,
         recordDate: Date,
+        recordOwnerId: {type: mongoose.Schema.Types.ObjectId, trim: true},
         createdAt: Date,
         createdBy: {type: mongoose.Schema.Types.ObjectId, trim: true},
         updatedAt: Date,

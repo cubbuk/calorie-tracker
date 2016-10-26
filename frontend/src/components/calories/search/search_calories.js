@@ -45,9 +45,9 @@ class SearchCalories extends React.Component {
     }
 
     renderCalorieRecord(calorieRecord = {}) {
-        let {_id, description, calorieAmount, createdAt, createdByUser = {}} = calorieRecord;
+        let {_id, description, calorieAmount, createdAt, recordOwner = {}} = calorieRecord;
         return <tr key={_id}>
-            {this.hasAdminRole && <td>{usersService.toFullNameWithUsername(createdByUser)}</td>}
+            {this.hasAdminRole && <td>{usersService.toFullNameWithUsername(recordOwner)}</td>}
             <td>{description}</td>
             <td>{calorieAmount}</td>
             <td>{moment(createdAt).format("DD/MM/YYYY HH:mm")}</td>
