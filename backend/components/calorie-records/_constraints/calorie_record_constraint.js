@@ -1,14 +1,6 @@
 const _ = require("lodash");
 class CalorieRecordConstraints {
 
-    id() {
-        return {
-            _id: {
-                presence: {message: "Please enter record id"}
-            }
-        }
-    }
-
     recordDate() {
         return {
             recordDate: {
@@ -25,7 +17,7 @@ class CalorieRecordConstraints {
                     minimum: 2,
                     tooShort: "Needs to have %{count} letters or more",
                     maximum: 100,
-                    greaterThan: "Needs to be less than %{count} letters"
+                    tooLong: "Needs to be less than or equal to %{count} letters"
                 }
             }
         };
