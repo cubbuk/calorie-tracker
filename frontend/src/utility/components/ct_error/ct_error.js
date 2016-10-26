@@ -16,15 +16,9 @@ class CTError extends React.Component {
                 {error.map((eachError, index) => <li key={index}>{eachError}</li>)}
             </ul>;
         } else if (_.isObject(error)) {
-            if (error.error) {
-                view = <ul>
-                    {Object.keys(error.error).map((errorKey, index) => <li key={index}>{error.error[errorKey]}</li>)}
-                </ul>;
-            } else {
-                view = <ul>
-                    {Object.keys(error).map((errorKey, index) => <li key={index}>{error[errorKey]}</li>)}
-                </ul>;
-            }
+            view = <ul>
+                {Object.keys(error).map((errorKey, index) => <li key={index}>{error[errorKey]}</li>)}
+            </ul>;
         } else {
             view = <ul>
                 <li>{error}</li>
@@ -36,7 +30,7 @@ class CTError extends React.Component {
     render() {
         let {bsStyle, error, show, ...otherProps} = this.props;
         return <CTAlert bsStyle="danger" className="ct_error"
-                        show={!_.isEmpty(error)} {...otherProps}>{this.renderError(error)}</CTAlert>
+                        show={!_.isEmpty(error)} {...otherProps}>{this.renderError(error ? (error.error || error) : "")}</CTAlert>
     }
 }
 

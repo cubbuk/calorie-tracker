@@ -60,29 +60,6 @@ class SearchCalories extends React.Component {
         this.setState({calorieRecordToBeUpdated: undefined});
     }
 
-
-    renderCalorieUpdateModal(calorieRecordToBeUpdated) {
-        let view = null;
-        if (calorieRecordToBeUpdated) {
-            let onCancelUpdate = this.onCancelUpdate.bind(this);
-            view = <Modal show onHide={onCancelUpdate}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Update Calorie Record</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Row>
-                        <Col xs={12}>
-                            <CalorieRecordFrom calorieRecord={calorieRecordToBeUpdated}
-                                               onCancel={onCancelUpdate}
-                                               onSave={this.updateCalorieRecord.bind(this)}/>
-                        </Col>
-                    </Row>
-                </Modal.Body>
-            </Modal>
-        }
-        return view;
-    }
-
     renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError) {
         let view = null;
         if (calorieRecordToBeUpdated) {
@@ -195,7 +172,7 @@ class SearchCalories extends React.Component {
                 <CTAlert show={calorieRecords.length === 0}>
                     There isn't any record.
                 </CTAlert>
-                {calorieRecords.length > 0 && <Table>
+                {calorieRecords.length > 0 && <Table bordered responsive>
                     <thead>
                     <tr>
                         <th>Description</th>

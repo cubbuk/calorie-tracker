@@ -29,8 +29,10 @@ class UsersService {
                         user.createdBy = savedBy;
                         return userMongooseCollection.create(user).then(result => result.toObject());
                     }).catch(error => {
-                        if (errorService.isValidationError(error) || errorService.isUniqueKeyConstraintError(error)) {
+                        if (errorService.isValidationError(error)) {
                             return error;
+                        } else if(errorService.isUniqueKeyConstraintError(error)){
+                            return errorService.createUniqueKeyError(error, "Entered username already exists");
                         } else {
                             throw error;
                         }
