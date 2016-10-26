@@ -6,7 +6,7 @@ import usersService from "../../_services/users_service";
 import userConstraints from "../../_constraints/user_constraint";
 import utilityService from "../../../../utility/services/utility_service";
 
-class userForm extends React.Component {
+class UserForm extends React.Component {
 
     constructor(props, context, ...args) {
         super(props, context, ...args);
@@ -89,7 +89,7 @@ class userForm extends React.Component {
     }
 }
 
-userForm.propTypes = {
+UserForm.propTypes = {
     user: PropTypes.object,
     disabled: PropTypes.bool,
     isUpdate: PropTypes.bool,
@@ -97,4 +97,4 @@ userForm.propTypes = {
     onCancel: PropTypes.func.isRequired
 };
 
-export default userForm;
+export default UserForm;

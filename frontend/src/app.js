@@ -11,6 +11,7 @@ import "./assets/css/bootstrap.css";
 import "./assets/css/main.css";
 import "react-date-picker/index.css";
 import "rc-slider/assets/index.css";
+import 'react-select/dist/react-select.css';
 
 import appState from "utility/app_state";
 

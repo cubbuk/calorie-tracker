@@ -1,3 +1,4 @@
+const restify = require("restify");
 class RequestUtility {
     unknownMethodHandler(req, res) {
         if (req.method.toLowerCase() === "options") {

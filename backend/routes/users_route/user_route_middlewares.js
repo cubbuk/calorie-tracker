@@ -5,21 +5,15 @@ class UserRouteMiddleware {
     hasRole(requiredRoles = [], req, res, next) {
         let {user = {}} = req;
         let {roles = []} = user;
-        let missingRole = false;
-        requiredRoles.forEach(requiredRole => {
-            if (!roles.includes(requiredRole)) {
-                missingRole = true;
-            }
-        });
-        if (missingRole) {
-            res.send(403);
-        } else {
+        if (requiredRoles.filter(requiredRole => roles.includes(requiredRole)).length > 0) {
             next();
+        } else {
+            res.send(403);
         }
     }
 
     managerRoute(req, res, next) {
-        this.hasRole([userRoleMap.MANAGER], req, res, next)
+        this.hasRole([userRoleMap.MANAGER, userRoleMap.ADMIN], req, res, next)
     }
 
     adminRoute(req, res, next) {

@@ -6,9 +6,31 @@ const usersRoute = function (path, server) {
 
     const hasManagerRole = userRouteMiddleware.managerRoute.bind(userRouteMiddleware);
 
-    server.get(path + "/list", hasManagerRole, function (req, res, next) {
-        usersService.retrieveUsers().then(users => {
+    server.get(path + "/byId/:id", hasManagerRole, function (req, res, next) {
+        usersService.retrieveUser(req.params.id).then(user => {
+            res.send(errorService.resultToStatusCode(user), user);
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        })
+    });
+
+    server.post(path + "/search", hasManagerRole, function (req, res, next) {
+        let {body = {}} = req;
+        usersService.searchUsers(body).then(users => {
             res.send(errorService.resultToStatusCode(users), {records: users, count: users.length});
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        })
+    });
+
+    server.post(path + "/list", hasManagerRole, function (req, res, next) {
+        let {body = {}} = req;
+        usersService.searchUsers(body).then(users => {
+            res.send(errorService.resultToStatusCode(users), users);
             next();
         }).catch(error => {
             res.send(500, error);

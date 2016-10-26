@@ -4,7 +4,7 @@ import Loader from "react-loader";
 import React, {PropTypes} from "react";
 import {Button, Col, Modal, Row, Table} from "react-bootstrap";
 import {CTAlert, CTConfirmModal, CTError} from "../../../utility/components/_ct_components";
-import CalorieRecordFrom from "../_components/calorie_record_form/calorie_record_form";
+import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
 import calorieRecordsService from "../_services/calorie_records_service";
 import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
@@ -78,7 +78,8 @@ class SearchCalories extends React.Component {
                         <Col xs={12}>
                             <Loader loaded={!isUpdating}/>
                             <CTError error={updateError}/>
-                            <CalorieRecordFrom calorieRecord={calorieRecordToBeUpdated}
+                            <CalorieRecordForm calorieRecord={calorieRecordToBeUpdated}
+                                               adminMode={this.hasAdminRole}
                                                disabled={isUpdating}
                                                onCancel={onCancelUpdate}
                                                onSave={this.updateCalorieRecord.bind(this)}/>
@@ -122,7 +123,8 @@ class SearchCalories extends React.Component {
                         <Col xs={12}>
                             <Loader loaded={!isAdding}/>
                             <CTError error={addError}/>
-                            <CalorieRecordFrom disabled={isAdding}
+                            <CalorieRecordForm disabled={isAdding}
+                                               adminMode={this.hasAdminRole}
                                                onCancel={onCancelNewRecord}
                                                onSave={this.addNewCalorieRecord.bind(this)}/>
                         </Col>

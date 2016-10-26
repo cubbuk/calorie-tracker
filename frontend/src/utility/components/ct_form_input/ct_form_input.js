@@ -111,19 +111,20 @@ class CTFormInput extends React.Component {
 
     render() {
         let {value} = this.state;
-        let {formControlClass, formGroupClass, errorClass, defaultClass, onValueChange, formSubmitted, labelClass, validationFunction, name, ...otherProps} = this.props;
+        let {formControlClass, children, formGroupClass, errorClass, defaultClass, onValueChange, formSubmitted, labelClass, validationFunction, name, ...otherProps} = this.props;
         let validationMessages = this.validate(value);
         return <FormGroup bsClass={formGroupClass}
                           onClick={this.focusToInput.bind(this)}
                           validationState={this.getValidationState(validationMessages)}>
             {this.renderLabel(validationMessages)}
+            {children ||
             <FormControl name={name}
                          ref="inputNode"
                          bsClass={formControlClass}
                          onBlur={this.onInputBlurred.bind(this)}
                          onFocus={this.onInputFocused.bind(this)}
                          onChange={this.onInputChanged.bind(this)}
-                         {...otherProps}/>
+                         {...otherProps}/>}
         </FormGroup>
     }
 }

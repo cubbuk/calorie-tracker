@@ -2,6 +2,7 @@ import validate from "validate.js";
 import React, {PropTypes} from "react";
 import {Button} from "react-bootstrap";
 import {CTFormInput} from "../../../../utility/components/_ct_components";
+import SelectUser from "../../../users/_components/select_user/select_user";
 import caloriesService from "../../_services/calorie_records_service";
 import calorieRecordConstraints from "../../_constraints/calorie_record_constraint";
 import utilityService from "../../../../utility/services/utility_service";
@@ -26,7 +27,7 @@ class calorieRecordForm extends React.Component {
         this.saveCalorieRecord(calorieRecord);
     }
 
-    saveCalorieRecord(calorieRecord){
+    saveCalorieRecord(calorieRecord) {
         if (caloriesService.isValidCalorieRecord(calorieRecord)) {
             let {onSave} = this.props;
             if (onSave instanceof Function) {
@@ -49,12 +50,20 @@ class calorieRecordForm extends React.Component {
     }
 
     render() {
-        let {disabled} = this.props;
+        let {adminMode, disabled} = this.props;
         let {calorieRecord = {}, formSubmitted} = this.state;
-        let {description, calorieAmount} = calorieRecord;
+        let {description, calorieAmount, recordOwnerId} = calorieRecord;
         let onSaveClicked = this.onSaveClicked.bind(this, calorieRecord);
         return <form onSubmit={onSaveClicked} disabled={disabled}
                      onKeyPress={this.onKeyPress.bind(this, calorieRecord)}>
+            {adminMode && <CTFormInput label="Select User">
+                <SelectUser
+                    autoBlur
+                    autoload={false}
+                    onSelect={this.onValueChange.bind(this, "recordOwnerId")}
+                    placeholder="Search for user"
+                    value={recordOwnerId}/>
+            </CTFormInput>}
             <CTFormInput name="description"
                          autoFocus
                          label="Description"
@@ -63,7 +72,7 @@ class calorieRecordForm extends React.Component {
                          validationFunction={(description) => validate({description}, calorieRecordConstraints.description(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "description")}/>
             <CTFormInput name="calorieAmount"
-                         label="calorie Amount"
+                         label="Calorie Amount"
                          type="number"
                          formSubmitted={formSubmitted}
                          value={calorieAmount}
@@ -78,6 +87,7 @@ class calorieRecordForm extends React.Component {
 calorieRecordForm.propTypes = {
     calorieRecord: PropTypes.object,
     disabled: PropTypes.bool,
+    adminMode: PropTypes.bool,
     onSave: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired
 };

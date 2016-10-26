@@ -22,7 +22,7 @@ describe("User crud test", function () {
             return usersService.retrieveUser(newCreatedUserId).then(foundUser => {
                 expect(foundUser).to.have.property("_id");
                 expect(foundUser._id.toString()).to.equal(newCreatedUserId.toString());
-                return usersService.retrieveUsers().then(results => {
+                return usersService.searchUsers().then(results => {
                     expect(results.length === 1).to.be.true;
                     expect(foundUser._id.toString()).to.equal(results[0]._id.toString());
                     return newCreatedUserId;

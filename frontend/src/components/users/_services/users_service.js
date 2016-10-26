@@ -9,8 +9,16 @@ class UsersService {
         return !validate(user, userConstraints.userConstraints());
     }
 
-    retrieveUsers() {
-        return baseAPI.get(baseURL + "/list");
+    findUserById(userId){
+        return baseAPI.get(baseURL + "/byId/" + userId);
+    }
+
+    searchUsers(searchParams = {}) {
+        return baseAPI.post(baseURL + "/search", {searchParams});
+    }
+
+    retrieveUserList(searchParams = {}){
+        return baseAPI.post(baseURL + "/list", {searchParams});
     }
 
     addNewUser(user) {

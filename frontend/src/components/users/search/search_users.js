@@ -14,7 +14,7 @@ class SearchUsers extends React.Component {
     }
 
     componentWillMount() {
-        usersService.retrieveUsers().then((results = {records: [], count: 0}) => this.setState({
+        usersService.searchUsers().then((results = {records: [], count: 0}) => this.setState({
             users: results.records,
             totalCount: results.count,
             loaded: true
@@ -29,7 +29,7 @@ class SearchUsers extends React.Component {
 
     updateUser(user) {
         this.setState({isUpdating: true});
-        usersService.updateUser(user).then(() => usersService.retrieveUsers())
+        usersService.updateUser(user).then(() => usersService.searchUsers())
             .then(results => {
                 this.setState({
                     users: results.records,
@@ -93,7 +93,7 @@ class SearchUsers extends React.Component {
     addNewUser(newUser) {
         this.setState({isAdding: true});
         usersService.addNewUser(newUser)
-            .then(() => usersService.retrieveUsers())
+            .then(() => usersService.searchUsers())
             .then((results) => {
                 this.setState({
                     users: results.records,
@@ -135,7 +135,7 @@ class SearchUsers extends React.Component {
 
     deleteRecord(userToBeDeleted) {
         this.setState({isDeleting: true});
-        usersService.deleteUser(userToBeDeleted._id).then(() => usersService.retrieveUsers()).then((results) => {
+        usersService.deleteUser(userToBeDeleted._id).then(() => usersService.searchUsers()).then((results) => {
             this.setState({
                 users: results.records,
                 totalCount: results.count,
