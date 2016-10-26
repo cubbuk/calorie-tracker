@@ -15,13 +15,14 @@ import appState from "../../../utility/app_state";
 class SearchCalories extends React.Component {
     constructor(props, context, ...args) {
         super(props, context, ...args);
-        this.state = {calorieRecords: []};
+        this.state = {calorieRecords: [], filters: {startDate: new Date(), endDate: new Date()}};
         this.hasAdminRole = userRoleService.hasAdminRole(appState.getUser());
         this.retrieveCalorieRecords = this.hasAdminRole ? calorieRecordsService.retrieveCalorieRecords : calorieRecordsService.retrieveCalorieRecordsOfCurrentUser;
     }
 
     componentWillMount() {
-        this.retrieveCalorieRecords().then((results = {records: [], count: 0}) => this.setState({
+        let {filters = {}} = this.state;
+        this.retrieveCalorieRecords(filters).then((results = {records: [], count: 0}) => this.setState({
             calorieRecords: results.records,
             totalCount: results.count,
             loaded: true
@@ -38,7 +39,7 @@ class SearchCalories extends React.Component {
 
     updateCalorieRecord(calorieRecord) {
         this.setState({isUpdating: true});
-        calorieRecordsService.updateCalorieRecord(calorieRecord).then(() => this.retrieveCalorieRecords())
+        calorieRecordsService.updateCalorieRecord(calorieRecord).then(() => this.retrieveCalorieRecords(this.state.filters))
             .then(results => {
                 this.setState({
                     calorieRecords: results.records,
@@ -104,7 +105,7 @@ class SearchCalories extends React.Component {
     addNewCalorieRecord(newCalorieRecord) {
         this.setState({isAdding: true});
         calorieRecordsService.addNewCalorieRecord(newCalorieRecord)
-            .then(() => this.retrieveCalorieRecords())
+            .then(() => this.retrieveCalorieRecords(this.state.filters))
             .then((results) => {
                 this.setState({
                     calorieRecords: results.records,
@@ -147,7 +148,7 @@ class SearchCalories extends React.Component {
 
     deleteRecord(calorieRecordToBeDeleted) {
         this.setState({isDeleting: true});
-        calorieRecordsService.deleteCaloryRecord(calorieRecordToBeDeleted._id).then(() => this.retrieveCalorieRecords()).then((results) => {
+        calorieRecordsService.deleteCaloryRecord(calorieRecordToBeDeleted._id).then(() => this.retrieveCalorieRecords(this.state.filters)).then((results) => {
             this.setState({
                 calorieRecords: results.records,
                 totalCount: results.count,
@@ -167,6 +168,12 @@ class SearchCalories extends React.Component {
         } else {
             this.setState({filters});
         }
+    }
+
+    onUserSelected(recordOwnerId) {
+        let {filters = {}} = this.state;
+        filters.recordOwnerId = recordOwnerId;
+        this.search(filters);
     }
 
     search(filters) {
@@ -215,12 +222,26 @@ class SearchCalories extends React.Component {
                                              src={require("../../../assets/images/loading.gif")}/>}
                     </Col>
                 </Row>}>
-                    {showFilters && <Row className="margin-bottom-20">
-                        <Col xs={12} sm={6}>
-                            <MultiMonthView weekNumbers={true}
-                                            defaultRange={[filters.startDate || now, filters.endDate || now]}
-                                            highlightRangeOnMouseMove
-                                            onRangeChange={this.rangeChanged.bind(this)}/>
+                    {showFilters && <Row>
+                        <Col xs={12}>
+                            {this.hasAdminRole && <Row className="margin-bottom-20">
+                                <Col xs={12} sm={12} md={3}>
+                                    <SelectUser
+                                        autoBlur
+                                        autoload={false}
+                                        onSelect={this.onUserSelected.bind(this)}
+                                        placeholder="Search for user"
+                                        value={filters.recordOwnerId}/>
+                                </Col>
+                            </Row>}
+                            <Row>
+                                <Col xs={12}>
+                                    <MultiMonthView weekNumbers={true}
+                                                    defaultRange={[filters.startDate || now, filters.endDate || now]}
+                                                    highlightRangeOnMouseMove
+                                                    onRangeChange={this.rangeChanged.bind(this)}/>
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>}
                 </Panel>

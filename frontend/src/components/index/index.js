@@ -54,6 +54,7 @@ class Index extends React.Component {
                 </Modal>
                 {!showAuthorizationErrorModal && children}
             </div>
+            <div className="beforeFooter"></div>
             <IndexFooter/>
         </div>;
     }

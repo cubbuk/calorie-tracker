@@ -1,3 +1,4 @@
+const moment = require("moment");
 const validate = require("validate.js");
 const Promise = require("bluebird");
 const mongoose = require("mongoose");
@@ -10,18 +11,17 @@ class CalorieRecordsService {
     searchParamsToMongoParams(searchParams = {}) {
         let mongoParams = {};
         if (searchParams.recordOwnerId) {
-            mongoParams.recordOwnerId;
+            mongoParams.recordOwnerId = searchParams.recordOwnerId;
         }
         if (searchParams.startDate && searchParams.endDate) {
-            mongoParams = {recordDate: {}};
+            mongoParams.recordDate = {};
             if (searchParams.startDate) {
-                mongoParams.recordDate.$gte = new Date(searchParams.startDate);
+                mongoParams.recordDate.$gte = moment(new Date(searchParams.startDate)).startOf("day").toDate();
             }
             if (searchParams.endDate) {
-                mongoParams.recordDate.$lte = new Date(searchParams.endDate);
+                mongoParams.recordDate.$lte = moment(new Date(searchParams.endDate)).startOf("day").add(1, "day").toDate();
             }
         }
-        console.log(searchParams, mongoParams);
         return mongoParams;
     }
 
