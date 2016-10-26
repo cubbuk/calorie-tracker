@@ -13,7 +13,7 @@ class CalorieRecordsService {
         if (searchParams.recordOwnerId) {
             mongoParams.recordOwnerId = searchParams.recordOwnerId;
         }
-        if (searchParams.startDate && searchParams.endDate) {
+        if (searchParams.startDate || searchParams.endDate) {
             mongoParams.recordDate = {};
             if (searchParams.startDate) {
                 mongoParams.recordDate.$gte = moment(new Date(searchParams.startDate)).startOf("day").toDate();
@@ -22,6 +22,18 @@ class CalorieRecordsService {
                 mongoParams.recordDate.$lte = moment(new Date(searchParams.endDate)).startOf("day").add(1, "day").toDate();
             }
         }
+        const startMinutes = (searchParams.startMinutes || 0) % (60 * 24);
+        const endMinutes = (searchParams.endMinutes || 0) % (60 * 24);
+        if (startMinutes || endMinutes) {
+            mongoParams.timeInMinutes = {};
+            if (startMinutes) {
+                mongoParams.timeInMinutes.$gte = startMinutes;
+            }
+            if (endMinutes) {
+                mongoParams.timeInMinutes.$lte = endMinutes;
+            }
+        }
+        // console.log(searchParams, mongoParams);
         return mongoParams;
     }
 
@@ -30,8 +42,13 @@ class CalorieRecordsService {
     }
 
     searchCalorieRecords(params = {}) {
-        let {searchParams = {}, orderParams = {}} = params;
-        return calorieRecordMongooseCollection.find(this.searchParamsToMongoParams(searchParams)).lean();
+        let {searchParams = {}, orderParams = {recordDate: -1}} = params;
+        return calorieRecordMongooseCollection.find(this.searchParamsToMongoParams(searchParams)).sort(orderParams).lean();
+    }
+
+    recordTimeToMinutes(date){
+        const momentDate = moment(date);
+        return momentDate.hours() * 60 + momentDate.minutes();
     }
 
     addNewCalorieRecord(record = {}, savedBy) {
@@ -43,6 +60,7 @@ class CalorieRecordsService {
                 record.recordOwnerId = record.recordOwnerId || savedBy;
                 record.createdAt = new Date();
                 record.createdBy = savedBy;
+                record.timeInMinutes = this.recordTimeToMinutes(record.recordDate);
                 return calorieRecordMongooseCollection.create(record);
             } else {
                 return errorService.createValidationError(validationResult);
@@ -55,6 +73,8 @@ class CalorieRecordsService {
             const validationResult = this.validateCalorieRecord(record);
             if (!validationResult) {
                 delete record._id;
+                record.timeInMinutes = this.recordTimeToMinutes(record.recordDate);
+                console.log(record.timeInMinutes);
                 record.updatedAt = new Date();
                 record.updatedBy = savedBy;
                 return calorieRecordMongooseCollection.update({_id: recordId}, record).then(() => this.retrieveCalorieRecord(recordId))

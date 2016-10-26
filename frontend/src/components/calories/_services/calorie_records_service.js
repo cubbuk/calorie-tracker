@@ -13,8 +13,8 @@ class CaloriesService {
         return baseAPI.post(baseURL + "/list", {searchParams});
     }
 
-    retrieveCalorieRecordsOfCurrentUser() {
-        return baseAPI.post(baseURL + "/list-of-user");
+    retrieveCalorieRecordsOfCurrentUser(searchParams = {}) {
+        return baseAPI.post(baseURL + "/list-of-user", {searchParams});
     }
 
     addNewCalorieRecord(calorieRecord) {

@@ -12,6 +12,7 @@
         calorieAmount: Number,
         recordDate: Date,
         recordOwnerId: {type: mongoose.Schema.Types.ObjectId, trim: true},
+        timeInMinutes: Number,
         createdAt: Date,
         createdBy: {type: mongoose.Schema.Types.ObjectId, trim: true},
         updatedAt: Date,

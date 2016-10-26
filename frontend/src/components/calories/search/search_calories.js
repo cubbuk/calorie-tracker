@@ -4,13 +4,17 @@ import Loader from "react-loader";
 import React, {PropTypes} from "react";
 import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
 import {MultiMonthView} from "react-date-picker";
-import {CTAlert, CTConfirmModal, CTError} from "../../../utility/components/_ct_components";
+import {CTAlert, CTConfirmModal, CTError, CTTimeSlider} from "../../../utility/components/_ct_components";
 import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
 import SelectUser from "../../users/_components/select_user/select_user";
 import calorieRecordsService from "../_services/calorie_records_service";
 import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
 import appState from "../../../utility/app_state";
+
+const MIN_TIME = 0;
+const MAX_TIME = 60 * 24;
+
 
 class SearchCalories extends React.Component {
     constructor(props, context, ...args) {
@@ -176,6 +180,13 @@ class SearchCalories extends React.Component {
         this.search(filters);
     }
 
+    onTimeFilterChanged(startTime, endTime){
+        let {filters = {}} = this.state;
+        filters.startMinutes = startTime;
+        filters.endMinutes = endTime;
+        this.search(filters);
+    }
+
     search(filters) {
         this.searchTimeout = setTimeout(() => this.setState({isSearching: true}), 500); //if search does not finish in given period, show an indicator
         this.retrieveCalorieRecords(filters).then((results = {records: [], count: 0}) => {
@@ -234,12 +245,18 @@ class SearchCalories extends React.Component {
                                         value={filters.recordOwnerId}/>
                                 </Col>
                             </Row>}
-                            <Row>
+                            <Row className="margin-bottom-20">
                                 <Col xs={12}>
                                     <MultiMonthView weekNumbers={true}
                                                     defaultRange={[filters.startDate || now, filters.endDate || now]}
                                                     highlightRangeOnMouseMove
                                                     onRangeChange={this.rangeChanged.bind(this)}/>
+                                </Col>
+                            </Row>
+                            <Row className="margin-bottom-20">
+                                <Col xs={12} md={3}>
+                                    <div className="margin-bottom-10">Time Filter</div>
+                                    <CTTimeSlider onTimeChanged={this.onTimeFilterChanged.bind(this)}/>
                                 </Col>
                             </Row>
                         </Col>
