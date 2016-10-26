@@ -1,84 +1,44 @@
 import Promise from "bluebird";
 import publisher from "./services/publisher";
 import events from "./constants/events";
-function AppState() {
-    let appState = this;
-    let tripFilters = {isReturnFlight: true};
-    let passengers = [];
-    var progress = 2;
-    let user;
-    let USER_KEY = "user";
-    appState.onAuthenticationError = () => {
-        return appState.clearUser();
-    };
-    publisher.subscribeToEvent(events.AUTHENTICATION_ERROR, appState.onAuthenticationError.bind(appState))
 
-    appState.initializeAppState = () => {
+const USER_KEY = "user";
+class AppState {
+
+    constructor() {
+        publisher.subscribeToEvent(events.AUTHENTICATION_ERROR, () => this.clearUser());
+        this.initializeAppState();
+    }
+
+    initializeAppState() {
         return Promise.try(() => {
             let userString = localStorage.getItem(USER_KEY);
             if (userString) {
-                user = JSON.parse(userString);
+                this.user = JSON.parse(userString);
             }
         }).catch(error => {
-            user = undefined;
+            this.user = undefined;
             logger.logError(error);
         });
-    };
+    }
 
-    appState.getUser = () => user;
-    appState.setUser = (theUser) => Promise.try(() => {
-        user = theUser;
-        return localStorage.setItem(USER_KEY, JSON.stringify(user));
-    }).then(() => user);
-    appState.clearUser = () => Promise.try(() => {
-        user = undefined;
-        return localStorage.removeItem(USER_KEY);
-    });
+    getUser() {
+        return this.user;
+    }
 
-    appState.getTripFilters = () => tripFilters || {};
-    appState.getFromFlight = () => {
-        let {fromFlight} = tripFilters;
-        return fromFlight;
-    };
-    appState.getReturnFlight = () => {
-        let {returnFlight} = tripFilters;
-        return returnFlight;
-    };
-    appState.getPassengers = () => passengers || [];
-    appState.getProgress = () => {
-        let progress = 2;
-        let tripFilters = appState.getTripFilters();
-        let {fromFlight, returnFlight, isReturnFlight} = tripFilters;
-        if (fromFlight) {
-            if (!returnFlight && isReturnFlight) {
-                progress = 3;
-            }
-            else {
-                progress = 4
-            }
-        }
-        return progress;
-    };
+    setUser(user) {
+        return Promise.try(() => {
+            this.user = user;
+            return localStorage.setItem(USER_KEY, JSON.stringify(user));
+        }).then(() => this.user);
+    }
 
-    appState.initializeNewSearch = () => {
-        delete tripFilters.fromFlight;
-        delete tripFilters.returnFlight;
-        return tripFilters;
-    };
-
-    appState.totalPrice = () => {
-        let result = {currency: "", totalAmount: 0};
-        let {fromFlight, returnFlight} = tripFilters;
-        if (fromFlight) {
-            result.currency = fromFlight.currency;
-            result.totalAmount += fromFlight.price || 0;
-        }
-        if (returnFlight) {
-            result.currency = returnFlight.currency;
-            result.totalAmount += returnFlight.price || 0;
-        }
-        return result;
-    };
+    clearUser() {
+        return Promise.try(() => {
+            this.user = undefined;
+            return localStorage.removeItem(USER_KEY);
+        });
+    }
 }
 
 export default new AppState();

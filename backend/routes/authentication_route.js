@@ -16,8 +16,7 @@ const usersService = require("../components/users/_services/users_service");
     module.exports = (server) => {
 
         server.use((req, res, next) => {
-                var sessionToken = securityService.receiveAuthenticationHeader(req);
-                console.log(sessionToken);
+                const sessionToken = securityService.receiveAuthenticationHeader(req);
                 if (pathService.isInWhiteList(req.path())) {
                     next();
                 } else if (sessionToken) {
@@ -51,6 +50,16 @@ const usersService = require("../components/users/_services/users_service");
                 }
             }
         );
+
+        server.post("api/logout", function (req, res, next) {
+            const sessionToken = securityService.receiveAuthenticationHeader(req);
+            userSessionTokenService.deleteSessionToken(sessionToken).then(result => {
+                res.send(errorService.resultToStatusCode(result), {});
+            }, function (err) {
+                res.send(500, err);
+                next();
+            });
+        });
 
     }
 })();

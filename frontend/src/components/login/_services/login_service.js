@@ -27,8 +27,9 @@ class LoginService {
     }
 
     logoutUser() {
-        return Promise.try(() => {
-            return appState.clearUser();
+        return baseApi.post("logout").then(() => {
+            appState.clearUser();
+            baseApi.clearToken();
         });
     }
 

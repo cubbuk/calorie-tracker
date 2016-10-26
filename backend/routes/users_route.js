@@ -1,5 +1,6 @@
 const usersService = require("../components/users/_services/users_service");
 const errorService = require("../utility/_services/error_service");
+
 const usersRoute = function (path, server) {
     server.get(path + "/list", function (req, res, next) {
         usersService.retrieveUsers().then(users => {
