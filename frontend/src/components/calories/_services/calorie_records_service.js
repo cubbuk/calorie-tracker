@@ -9,12 +9,12 @@ class CaloriesService {
         return !validate(calorieRecord, calorieRecordConstraint.calorieRecordConstraints());
     }
 
-    retrieveCalorieRecords(searchParams = {}) {
-        return baseAPI.post(baseURL + "/list", {searchParams});
+    retrieveCalorieRecords(params = {}) {
+        return baseAPI.post(baseURL + "/list", params);
     }
 
-    retrieveCalorieRecordsOfCurrentUser(searchParams = {}) {
-        return baseAPI.post(baseURL + "/list-of-user", {searchParams});
+    retrieveCalorieRecordsOfCurrentUser(params = {}) {
+        return baseAPI.post(baseURL + "/list-of-user", params);
     }
 
     addNewCalorieRecord(calorieRecord) {

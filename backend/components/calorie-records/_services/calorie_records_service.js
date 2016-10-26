@@ -41,12 +41,16 @@ class CalorieRecordsService {
         return calorieRecordMongooseCollection.findOne({_id: recordId}).lean();
     }
 
-    searchCalorieRecords(params = {}) {
-        let {searchParams = {}, orderParams = {recordDate: -1}} = params;
-        return calorieRecordMongooseCollection.find(this.searchParamsToMongoParams(searchParams)).sort(orderParams).lean();
+    countCalorieRecords(searchParams = {}) {
+        return calorieRecordMongooseCollection.count(this.searchParamsToMongoParams(searchParams));
     }
 
-    recordTimeToMinutes(date){
+    searchCalorieRecords(params = {}) {
+        let {searchParams = {}, orderParams = {recordDate: -1}, pageNumber = 1, resultsPerPage = 10} = params;
+        return calorieRecordMongooseCollection.find(this.searchParamsToMongoParams(searchParams)).sort(orderParams).skip((pageNumber - 1) * resultsPerPage).limit(resultsPerPage).lean();
+    }
+
+    recordTimeToMinutes(date) {
         const momentDate = moment(date);
         return momentDate.hours() * 60 + momentDate.minutes();
     }
@@ -74,7 +78,6 @@ class CalorieRecordsService {
             if (!validationResult) {
                 delete record._id;
                 record.timeInMinutes = this.recordTimeToMinutes(record.recordDate);
-                console.log(record.timeInMinutes);
                 record.updatedAt = new Date();
                 record.updatedBy = savedBy;
                 return calorieRecordMongooseCollection.update({_id: recordId}, record).then(() => this.retrieveCalorieRecord(recordId))

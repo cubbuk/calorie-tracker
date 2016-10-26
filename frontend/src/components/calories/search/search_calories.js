@@ -4,7 +4,7 @@ import Loader from "react-loader";
 import React, {PropTypes} from "react";
 import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
 import {MultiMonthView} from "react-date-picker";
-import {CTAlert, CTConfirmModal, CTError, CTTimeSlider} from "../../../utility/components/_ct_components";
+import {CTAlert, CTConfirmModal, CTError, CTTimeSlider, CTPaginator} from "../../../utility/components/_ct_components";
 import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
 import SelectUser from "../../users/_components/select_user/select_user";
 import calorieRecordsService from "../_services/calorie_records_service";
@@ -12,21 +12,27 @@ import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
 import appState from "../../../utility/app_state";
 
-const MIN_TIME = 0;
-const MAX_TIME = 60 * 24;
-
+const RESULTS_PER_PAGE = 10;
 
 class SearchCalories extends React.Component {
     constructor(props, context, ...args) {
         super(props, context, ...args);
-        this.state = {calorieRecords: [], filters: {startDate: new Date(), endDate: new Date()}};
+        this.state = {
+            calorieRecords: [],
+            searchParams: {startDate: new Date(), endDate: new Date()},
+            pageNumber: 1
+        };
         this.hasAdminRole = userRoleService.hasAdminRole(appState.getUser());
         this.retrieveCalorieRecords = this.hasAdminRole ? calorieRecordsService.retrieveCalorieRecords : calorieRecordsService.retrieveCalorieRecordsOfCurrentUser;
     }
 
     componentWillMount() {
-        let {filters = {}} = this.state;
-        this.retrieveCalorieRecords(filters).then((results = {records: [], count: 0}) => this.setState({
+        let {searchParams = {}, pageNumber = 1} = this.state;
+        this.retrieveCalorieRecords({
+            searchParams,
+            pageNumber,
+            resultsPerPage: RESULTS_PER_PAGE
+        }).then((results = {records: [], count: 0}) => this.setState({
             calorieRecords: results.records,
             totalCount: results.count,
             loaded: true
@@ -43,16 +49,20 @@ class SearchCalories extends React.Component {
 
     updateCalorieRecord(calorieRecord) {
         this.setState({isUpdating: true});
-        calorieRecordsService.updateCalorieRecord(calorieRecord).then(() => this.retrieveCalorieRecords(this.state.filters))
-            .then(results => {
-                this.setState({
-                    calorieRecords: results.records,
-                    totalCount: results.count,
-                    updateError: undefined,
-                    isUpdating: false,
-                    calorieRecordToBeUpdated: undefined
-                });
-            }).catch(updateError => this.setState({updateError, isUpdating: false}));
+        let {searchParams = {}, pageNumber = 1} = this.state;
+        calorieRecordsService.updateCalorieRecord(calorieRecord).then(() => this.retrieveCalorieRecords({
+            searchParams,
+            pageNumber,
+            resultsPerPage: RESULTS_PER_PAGE
+        })).then(results => {
+            this.setState({
+                calorieRecords: results.records,
+                totalCount: results.count,
+                updateError: undefined,
+                isUpdating: false,
+                calorieRecordToBeUpdated: undefined
+            });
+        }).catch(updateError => this.setState({updateError, isUpdating: false}));
     }
 
     renderCalorieRecord(calorieRecord = {}) {
@@ -108,8 +118,9 @@ class SearchCalories extends React.Component {
 
     addNewCalorieRecord(newCalorieRecord) {
         this.setState({isAdding: true});
+        let {searchParams = {}, pageNumber = 1} = this.state;
         calorieRecordsService.addNewCalorieRecord(newCalorieRecord)
-            .then(() => this.retrieveCalorieRecords(this.state.filters))
+            .then(() => this.retrieveCalorieRecords({searchParams, pageNumber, resultsPerPage: RESULTS_PER_PAGE}))
             .then((results) => {
                 this.setState({
                     calorieRecords: results.records,
@@ -152,59 +163,83 @@ class SearchCalories extends React.Component {
 
     deleteRecord(calorieRecordToBeDeleted) {
         this.setState({isDeleting: true});
-        calorieRecordsService.deleteCaloryRecord(calorieRecordToBeDeleted._id).then(() => this.retrieveCalorieRecords(this.state.filters)).then((results) => {
-            this.setState({
-                calorieRecords: results.records,
-                totalCount: results.count,
-                deleteError: undefined,
-                isDeleting: false,
-                calorieRecordToBeDeleted: undefined
-            });
-        }).catch(deleteError => this.setState({deleteError, isDeleting: false}));
+        let {searchParams = {}, pageNumber = 1} = this.state;
+        calorieRecordsService.deleteCaloryRecord(calorieRecordToBeDeleted._id)
+            .then(() => this.retrieveCalorieRecords({
+                searchParams,
+                pageNumber,
+                resultsPerPage: RESULTS_PER_PAGE
+            }))
+            .then((results) => {
+                this.setState({
+                    calorieRecords: results.records,
+                    totalCount: results.count,
+                    deleteError: undefined,
+                    isDeleting: false,
+                    calorieRecordToBeDeleted: undefined
+                });
+            }).catch(deleteError => this.setState({deleteError, isDeleting: false}));
     }
 
     rangeChanged(rangeArrayAsString, rangeArrayAsObject) {
-        let {filters = {}} = this.state;
-        filters.startDate = rangeArrayAsObject[0] ? rangeArrayAsObject[0].dateMoment.toDate() : undefined;
-        filters.endDate = rangeArrayAsObject[1] ? rangeArrayAsObject[1].dateMoment.toDate() : undefined;
-        if (filters.endDate) {
-            this.search(filters);
+        let {searchParams = {}} = this.state;
+        searchParams.startDate = rangeArrayAsObject[0] ? rangeArrayAsObject[0].dateMoment.toDate() : undefined;
+        searchParams.endDate = rangeArrayAsObject[1] ? rangeArrayAsObject[1].dateMoment.toDate() : undefined;
+        if (searchParams.endDate) {
+            this.search(searchParams, 1);
         } else {
-            this.setState({filters});
+            this.setState({searchParams});
         }
     }
 
     onUserSelected(recordOwnerId) {
-        let {filters = {}} = this.state;
-        filters.recordOwnerId = recordOwnerId;
-        this.search(filters);
+        let {searchParams = {}} = this.state;
+        searchParams.recordOwnerId = recordOwnerId;
+        this.search(searchParams, 1);
     }
 
-    onTimeFilterChanged(startTime, endTime){
-        let {filters = {}} = this.state;
-        filters.startMinutes = startTime;
-        filters.endMinutes = endTime;
-        this.search(filters);
+    onTimeFilterChanged(startTime, endTime) {
+        let {searchParams = {}} = this.state;
+        searchParams.startMinutes = startTime;
+        searchParams.endMinutes = endTime;
+        this.search(searchParams, 1);
     }
 
-    search(filters) {
+    search(searchParams, pageNumber = this.state.pageNumber) {
         this.searchTimeout = setTimeout(() => this.setState({isSearching: true}), 500); //if search does not finish in given period, show an indicator
-        this.retrieveCalorieRecords(filters).then((results = {records: [], count: 0}) => {
+        this.retrieveCalorieRecords({
+            searchParams,
+            pageNumber,
+            resultsPerPage: RESULTS_PER_PAGE
+        }).then((results = {records: [], count: 0}) => {
             clearTimeout(this.searchTimeout);
             this.setState({
                 calorieRecords: results.records,
                 totalCount: results.count,
                 isSearching: false,
-                filters
+                searchParams,
+                pageNumber
             })
         }).catch(error => this.setState({error, isSearching: false}));
     }
 
+    selectPage(pageNumber) {
+        this.setState({pageNumber});
+        let {searchParams = {}} = this.state;
+        this.search(searchParams, pageNumber);
+    }
+
     render() {
-        let {calorieRecords = [], calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showFilters, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
-        let {error, deleteError, addError, updateError, filters = {}, isSearching} = this.state;
+        let {calorieRecords = [], totalCount = calorieRecords.length, calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showsearchParams, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
+        let {error, deleteError, addError, updateError, searchParams = {}, isSearching, pageNumber = 1} = this.state;
         let cancelDeletionOfCaleryRecord = this.cancelDeletionOfCaleryRecord.bind(this);
         const now = new Date();
+        const paginatorComponent = <CTPaginator bsSize="medium"
+                                                style={{marginTop: "0px"}}
+                                                total={totalCount}
+                                                activePage={pageNumber}
+                                                resultsPerPage={RESULTS_PER_PAGE}
+                                                onSelect={this.selectPage.bind(this)}/>;
         return <div>
             <CTError error={error}/>
             <CTConfirmModal disabled={isDeleting}
@@ -223,17 +258,18 @@ class SearchCalories extends React.Component {
                                 onClick={() => this.setState({addError: undefined, showNewCalorieRecordModal: true})}>
                             Add new record&nbsp;<Glyphicon glyph="plus"/>
                         </Button>
-                        <Button className="margin-right-10" onClick={() => this.setState({showFilters: !showFilters})}>
-                            {showFilters ? "Hide Filters" : "Show Filters"}
+                        <Button className="margin-right-10"
+                                onClick={() => this.setState({showsearchParams: !showsearchParams})}>
+                            {showsearchParams ? "Hide searchParams" : "Show searchParams"}
                             &nbsp;<Glyphicon glyph="filter"/>
                         </Button>
-                        {showFilters && <Button onClick={this.search.bind(this, filters)}>Search&nbsp;<Glyphicon
-                            glyph="search"/></Button>}
+                        <Button onClick={this.search.bind(this, searchParams, pageNumber)}>Search&nbsp;<Glyphicon
+                            glyph="search"/></Button>
                         {isSearching && <img width={35} className="margin-left-10"
                                              src={require("../../../assets/images/loading.gif")}/>}
                     </Col>
                 </Row>}>
-                    {showFilters && <Row>
+                    {showsearchParams && <Row>
                         <Col xs={12}>
                             {this.hasAdminRole && <Row className="margin-bottom-20">
                                 <Col xs={12} sm={12} md={3}>
@@ -242,13 +278,13 @@ class SearchCalories extends React.Component {
                                         autoload={false}
                                         onSelect={this.onUserSelected.bind(this)}
                                         placeholder="Search for user"
-                                        value={filters.recordOwnerId}/>
+                                        value={searchParams.recordOwnerId}/>
                                 </Col>
                             </Row>}
                             <Row className="margin-bottom-20">
                                 <Col xs={12}>
                                     <MultiMonthView weekNumbers={true}
-                                                    defaultRange={[filters.startDate || now, filters.endDate || now]}
+                                                    defaultRange={[searchParams.startDate || now, searchParams.endDate || now]}
                                                     highlightRangeOnMouseMove
                                                     onRangeChange={this.rangeChanged.bind(this)}/>
                                 </Col>
@@ -282,9 +318,9 @@ class SearchCalories extends React.Component {
                     {calorieRecords.map(this.renderCalorieRecord.bind(this))}
                     </tbody>
                 </Table>}
+                {paginatorComponent}
             </Loader>
-        </div>
-            ;
+        </div>;
     }
 }
 

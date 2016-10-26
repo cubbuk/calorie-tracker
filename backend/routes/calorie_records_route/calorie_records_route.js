@@ -1,7 +1,7 @@
+const Promise = require("bluebird");
 const calorieRecordsService = require("../../components/calorie-records/_services/calorie_records_service");
 const errorService = require("../../utility/_services/error_service");
 const usersService = require("../../components/users/_services/users_service");
-const userRoleService = require("../../components/users/_services/user_role_service");
 const calorieRecordsRouteMiddleware = require("./calorie_records_route_middleware");
 const userRouteMiddleware = require("../users_route/user_route_middlewares");
 
@@ -13,10 +13,16 @@ const calorieRoute = function (path, server) {
 
     server.post(path + "/list", hasAdminRole, function (req, res, next) {
         let {body = {}} = req;
-        calorieRecordsService.searchCalorieRecords(body).then(records => {
-            return usersService.fullfillUsersOfCalorieRecords(records);
-        }).then(records => {
-            res.send(errorService.resultToStatusCode(records), {records: records, count: records.length});
+        let {searchParams = {}} = body;
+        const searchPromise = calorieRecordsService.searchCalorieRecords(body);
+        const countPromise = calorieRecordsService.countCalorieRecords(searchParams);
+        Promise.all([searchPromise, countPromise]).then(results => {
+            return usersService.fullfillUsersOfCalorieRecords(results[0]).then(records => {
+                results[0] = records;
+                return results;
+            })
+        }).then(results => {
+            res.send(200, {records: results[0], count: results[1]});
             next();
         }).catch(error => {
             res.send(500, error);
@@ -28,8 +34,10 @@ const calorieRoute = function (path, server) {
         let {body = {}, user = {}} = req;
         body.searchParams = body.searchParams || {};
         body.searchParams.recordOwnerId = user._id;
-        calorieRecordsService.searchCalorieRecords(body).then(records => {
-            res.send(errorService.resultToStatusCode(records), {records: records, count: records.length});
+        const searchPromise = calorieRecordsService.searchCalorieRecords(body);
+        const countPromise = calorieRecordsService.countCalorieRecords(body.searchParams);
+        Promise.all([searchPromise, countPromise]).then(results => {
+            res.send(200, {records: results[0], count: results[1]});
             next();
         }).catch(error => {
             res.send(500, error);
