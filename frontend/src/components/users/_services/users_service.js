@@ -10,19 +10,19 @@ class UsersService {
     }
 
     retrieveUsers() {
-        return baseAPI.get(baseURL);
+        return baseAPI.get(baseURL + "/list");
     }
 
     addNewUser(user) {
-        return baseAPI.post(baseURL, user);
+        return baseAPI.post(baseURL + "/create", user);
     }
 
     updateUser(user = {}) {
-        return baseAPI.put(baseURL + "/" + user._id, user);
+        return baseAPI.put(baseURL + "/update/" + user._id, user);
     }
 
     deleteUser(userId) {
-        return baseAPI.delete(baseURL + "/" + userId);
+        return baseAPI.delete(baseURL + "/delete/" + userId);
     }
 }
 

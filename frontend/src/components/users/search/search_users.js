@@ -14,15 +14,11 @@ class SearchUsers extends React.Component {
     }
 
     componentWillMount() {
-        this.retriveUsers().then((results = {records: [], count: 0}) => this.setState({
+        usersService.retrieveUsers().then((results = {records: [], count: 0}) => this.setState({
             users: results.records,
             totalCount: results.count,
             loaded: true
         })).catch(error => this.setState({error, loaded: true}));
-    }
-
-    retriveUsers() {
-        return usersService.retrieveUsers();
     }
 
     selectUserToBeUpdated(user) {
@@ -33,7 +29,7 @@ class SearchUsers extends React.Component {
 
     updateUser(user) {
         this.setState({isUpdating: true});
-        usersService.updateUser(user).then(() => this.retriveUsers())
+        usersService.updateUser(user).then(() => usersService.retrieveUsers())
             .then(results => {
                 this.setState({
                     users: results.records,
@@ -97,7 +93,7 @@ class SearchUsers extends React.Component {
     addNewUser(newUser) {
         this.setState({isAdding: true});
         usersService.addNewUser(newUser)
-            .then(() => this.retriveUsers())
+            .then(() => usersService.retrieveUsers())
             .then((results) => {
                 this.setState({
                     users: results.records,
@@ -139,7 +135,7 @@ class SearchUsers extends React.Component {
 
     deleteRecord(userToBeDeleted) {
         this.setState({isDeleting: true});
-        usersService.deleteUser(userToBeDeleted._id).then(() => this.retriveUsers()).then((results) => {
+        usersService.deleteUser(userToBeDeleted._id).then(() => usersService.retrieveUsers()).then((results) => {
             this.setState({
                 users: results.records,
                 totalCount: results.count,
@@ -175,7 +171,7 @@ class SearchUsers extends React.Component {
             <Loader loaded={loaded}>
                 {this.renderNewUserModal(showNewUserModal, isAdding, addError)}
                 {this.renderUserUpdateModal(userToBeUpdated, isUpdating, updateError)}
-                <CTAlert show={users.length === 0}>
+                <CTAlert show={!error && users.length === 0}>
                     There isn't any user.
                 </CTAlert>
                 {users.length > 0 && <Table bordered responsive>
