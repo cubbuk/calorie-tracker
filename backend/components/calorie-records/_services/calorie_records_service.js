@@ -7,17 +7,36 @@ const errorService = require("../../../utility/_services/error_service");
 
 class CalorieRecordsService {
 
+    searchParamsToMongoParams(searchParams = {}) {
+        let mongoParams = {};
+        if (searchParams.recordOwnerId) {
+            mongoParams.recordOwnerId;
+        }
+        if (searchParams.startDate && searchParams.endDate) {
+            mongoParams = {recordDate: {}};
+            if (searchParams.startDate) {
+                mongoParams.recordDate.$gte = new Date(searchParams.startDate);
+            }
+            if (searchParams.endDate) {
+                mongoParams.recordDate.$lte = new Date(searchParams.endDate);
+            }
+        }
+        console.log(searchParams, mongoParams);
+        return mongoParams;
+    }
+
     retrieveCalorieRecord(recordId) {
         return calorieRecordMongooseCollection.findOne({_id: recordId}).lean();
     }
 
-    retrieveCalorieRecords(searchParams, orderParams) {
-        return calorieRecordMongooseCollection.find(searchParams).lean();
+    searchCalorieRecords(params = {}) {
+        let {searchParams = {}, orderParams = {}} = params;
+        return calorieRecordMongooseCollection.find(this.searchParamsToMongoParams(searchParams)).lean();
     }
 
     addNewCalorieRecord(record = {}, savedBy) {
         return Promise.try(() => {
-            record.recordDate = new Date();
+            record.recordDate = record.recordDate || new Date();
             const validationResult = this.validateCalorieRecord(record);
             if (!validationResult) {
                 record._id = mongoose.Types.ObjectId();

@@ -11,10 +11,9 @@ const calorieRoute = function (path, server) {
     const isAdminOrOwnRecord = calorieRecordsRouteMiddleware.isAdminOrOwnRecord.bind(calorieRecordsRouteMiddleware);
     const isAdminOrCreatingForOwn = calorieRecordsRouteMiddleware.isAdminOrCreatingForOwn.bind(calorieRecordsRouteMiddleware);
 
-    server.get(path + "/list", hasAdminRole, function (req, res, next) {
+    server.post(path + "/list", hasAdminRole, function (req, res, next) {
         let {body = {}} = req;
-        let {searchParams = {}, orderParams = {}} = body;
-        calorieRecordsService.retrieveCalorieRecords(searchParams, orderParams).then(records => {
+        calorieRecordsService.searchCalorieRecords(body).then(records => {
             return usersService.fullfillUsersOfCalorieRecords(records);
         }).then(records => {
             res.send(errorService.resultToStatusCode(records), {records: records, count: records.length});
@@ -25,11 +24,11 @@ const calorieRoute = function (path, server) {
         });
     });
 
-    server.get(path + "/list-of-user", function (req, res, next) {
+    server.post(path + "/list-of-user", function (req, res, next) {
         let {body = {}, user = {}} = req;
-        let {searchParams = {}, orderParams = {}} = body;
-        searchParams.recordOwnerId = user._id;
-        calorieRecordsService.retrieveCalorieRecords(searchParams, orderParams).then(records => {
+        body.searchParams = body.searchParams || {};
+        body.searchParams.recordOwnerId = user._id;
+        calorieRecordsService.searchCalorieRecords(body).then(records => {
             res.send(errorService.resultToStatusCode(records), {records: records, count: records.length});
             next();
         }).catch(error => {

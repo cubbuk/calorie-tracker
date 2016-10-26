@@ -2,9 +2,11 @@ import _ from "lodash";
 import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Modal, Row, Table} from "react-bootstrap";
+import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
+import {MultiMonthView} from "react-date-picker";
 import {CTAlert, CTConfirmModal, CTError} from "../../../utility/components/_ct_components";
 import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
+import SelectUser from "../../users/_components/select_user/select_user";
 import calorieRecordsService from "../_services/calorie_records_service";
 import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
@@ -24,6 +26,10 @@ class SearchCalories extends React.Component {
             totalCount: results.count,
             loaded: true
         })).catch(error => this.setState({error, loaded: true}));
+    }
+
+    componentWillUnmount() {
+        clearTimeout(this.searchTimeout);
     }
 
     selectCalorieRecordToBeUpdated(calorieRecord) {
@@ -152,20 +158,37 @@ class SearchCalories extends React.Component {
         }).catch(deleteError => this.setState({deleteError, isDeleting: false}));
     }
 
+    rangeChanged(rangeArrayAsString, rangeArrayAsObject) {
+        let {filters = {}} = this.state;
+        filters.startDate = rangeArrayAsObject[0] ? rangeArrayAsObject[0].dateMoment.toDate() : undefined;
+        filters.endDate = rangeArrayAsObject[1] ? rangeArrayAsObject[1].dateMoment.toDate() : undefined;
+        if (filters.endDate) {
+            this.search(filters);
+        } else {
+            this.setState({filters});
+        }
+    }
+
+    search(filters) {
+        this.searchTimeout = setTimeout(() => this.setState({isSearching: true}), 500); //if search does not finish in given period, show an indicator
+        this.retrieveCalorieRecords(filters).then((results = {records: [], count: 0}) => {
+            clearTimeout(this.searchTimeout);
+            this.setState({
+                calorieRecords: results.records,
+                totalCount: results.count,
+                isSearching: false,
+                filters
+            })
+        }).catch(error => this.setState({error, isSearching: false}));
+    }
+
     render() {
-        let {calorieRecords = [], calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
-        let {error, deleteError, addError, updateError} = this.state;
+        let {calorieRecords = [], calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showFilters, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
+        let {error, deleteError, addError, updateError, filters = {}, isSearching} = this.state;
         let cancelDeletionOfCaleryRecord = this.cancelDeletionOfCaleryRecord.bind(this);
+        const now = new Date();
         return <div>
             <CTError error={error}/>
-            <Row className="margin-bottom-20 margin-top-20">
-                <Col xs={12}>
-                    <Button bsStyle="primary"
-                            onClick={() => this.setState({addError: undefined, showNewCalorieRecordModal: true})}>Add
-                        new
-                        record</Button>
-                </Col>
-            </Row>
             <CTConfirmModal disabled={isDeleting}
                             show={!!calorieRecordToBeDeleted}
                             onCancel={cancelDeletionOfCaleryRecord}
@@ -176,6 +199,31 @@ class SearchCalories extends React.Component {
                 Do you confirm deleting this record?
             </CTConfirmModal>
             <Loader loaded={loaded}>
+                <Panel bsStyle="primary" header={<Row>
+                    <Col xs={12}>
+                        <Button className="margin-right-10"
+                                onClick={() => this.setState({addError: undefined, showNewCalorieRecordModal: true})}>
+                            Add new record&nbsp;<Glyphicon glyph="plus"/>
+                        </Button>
+                        <Button className="margin-right-10" onClick={() => this.setState({showFilters: !showFilters})}>
+                            {showFilters ? "Hide Filters" : "Show Filters"}
+                            &nbsp;<Glyphicon glyph="filter"/>
+                        </Button>
+                        {showFilters && <Button onClick={this.search.bind(this, filters)}>Search&nbsp;<Glyphicon
+                            glyph="search"/></Button>}
+                        {isSearching && <img width={35} className="margin-left-10"
+                                             src={require("../../../assets/images/loading.gif")}/>}
+                    </Col>
+                </Row>}>
+                    {showFilters && <Row className="margin-bottom-20">
+                        <Col xs={12} sm={6}>
+                            <MultiMonthView weekNumbers={true}
+                                            defaultRange={[filters.startDate || now, filters.endDate || now]}
+                                            highlightRangeOnMouseMove
+                                            onRangeChange={this.rangeChanged.bind(this)}/>
+                        </Col>
+                    </Row>}
+                </Panel>
                 {this.renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding, addError)}
                 {this.renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError)}
                 <CTAlert show={calorieRecords.length === 0}>
@@ -197,7 +245,8 @@ class SearchCalories extends React.Component {
                     </tbody>
                 </Table>}
             </Loader>
-        </div>;
+        </div>
+            ;
     }
 }
 

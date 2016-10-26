@@ -55,7 +55,7 @@ class calorieRecordForm extends React.Component {
     onDateChanged(dateString, {dateMoment, timestamp}) {
         let {calorieRecord = {}} = this.state;
         calorieRecord.recordDate = dateMoment.toDate();
-        console.log(calorieRecord.recordDate);
+        this.setState({calorieRecord});
     }
 
 
@@ -88,7 +88,7 @@ class calorieRecordForm extends React.Component {
                          value={calorieAmount}
                          validationFunction={(calorieAmount) => validate({calorieAmount}, calorieRecordConstraints.calorieAmount(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "calorieAmount")}/>
-            <CTFormInput label="Record Date">
+            <CTFormInput label={"Record Date" + moment(recordDate).format(this.dateFormat)}>
                 <Calendar dateFormat={this.dateFormat}
                           defaultDate={moment(recordDate).format(this.dateFormat)}
                           onChange={this.onDateChanged.bind(this)}/>
