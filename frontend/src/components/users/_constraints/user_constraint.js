@@ -7,7 +7,7 @@ class UserConstraints {
             username: {
                 presence: {message: "Please enter a username"},
                 length: {
-                    minimum: 6,
+                    minimum: 3,
                     tooShort: "Needs to have %{count} letters or more",
                     maximum: 20,
                     tooLong: "Needs to be less than or equal %{count} letters"

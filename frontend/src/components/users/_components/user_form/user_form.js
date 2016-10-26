@@ -52,20 +52,20 @@ class userForm extends React.Component {
                          validationFunction={(username) => validate({username}, userConstraints.username(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "username")}/>
             <CTFormInput name="fullName"
-                         label="fullName"
+                         label="Full Name"
                          formSubmitted={formSubmitted}
                          value={fullName}
                          validationFunction={(fullName) => validate({fullName}, userConstraints.fullName(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "fullName")}/>
             <CTFormInput name="password"
-                         label="password"
+                         label="Password"
                          type="password"
                          formSubmitted={formSubmitted}
                          value={password}
                          validationFunction={(password) => validate({password}, userConstraints.password(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "password")}/>
-            <CTFormInput name="calorieAmount"
-                         label="calorie Amount"
+            <CTFormInput name="caloriesPerDay"
+                         label="Calories Per Day"
                          type="number"
                          formSubmitted={formSubmitted}
                          value={caloriesPerDay}

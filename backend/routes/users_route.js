@@ -31,6 +31,17 @@ const usersRoute = function (path, server) {
         })
     });
 
+    server.post(path + "/:id/calories-per-day", function (req, res, next) {
+        let {caloriesPerDay} = req.body;
+        usersService.updateCaloriesPerDayOfUser(req.params.id, caloriesPerDay, req.user._id).then(result => {
+            res.send(errorService.resultToStatusCode(result), result);
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        })
+    });
+
     server.del(path + "/:id", function (req, res, next) {
         usersService.deleteUser(req.params.id).then(result => {
             res.send(errorService.resultToStatusCode(result), result);

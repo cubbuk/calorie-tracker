@@ -16,6 +16,23 @@ class UsersService {
         return userMongooseCollection.find();
     }
 
+    updateCaloriesPerDayOfUser(userId, caloriesPerDay, savedBy) {
+        return Promise.try(() => {
+            let validationResult = this.validateCaloriesPerDay(caloriesPerDay);
+            if (!validationResult) {
+                return userMongooseCollection.update({_id: userId}, {
+                    $set: {
+                        caloriesPerDay,
+                        updatedAt: new Date(),
+                        updatedBy: savedBy
+                    }
+                }).then(() => this.retrieveUser(userId));
+            } else {
+                return errorService.createValidationError(validationResult);
+            }
+        });
+    }
+
     addNewUser(user = {}, savedBy) {
         return Promise.try(() => {
             const validationResult = this.validateUser(user);
@@ -31,7 +48,7 @@ class UsersService {
                     }).catch(error => {
                         if (errorService.isValidationError(error)) {
                             return error;
-                        } else if(errorService.isUniqueKeyConstraintError(error)){
+                        } else if (errorService.isUniqueKeyConstraintError(error)) {
                             return errorService.createUniqueKeyError(error, "Entered username already exists");
                         } else {
                             throw error;
@@ -80,6 +97,10 @@ class UsersService {
 
     validatePassword(password) {
         return validate({password}, userConstraint.password(), {fullMessages: false});
+    }
+
+    validateCaloriesPerDay(caloriesPerDay) {
+        return validate({caloriesPerDay}, userConstraint.caloriesPerDay(), {fullMessages: false});
     }
 
     hashPasswordOfUser(user) {
