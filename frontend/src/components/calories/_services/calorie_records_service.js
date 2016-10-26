@@ -10,19 +10,23 @@ class CaloriesService {
     }
 
     retrieveCalorieRecords() {
-        return baseAPI.get(baseURL);
+        return baseAPI.get(baseURL + "/list");
+    }
+
+    retrieveCalorieRecordsOfCurrentUser() {
+        return baseAPI.get(baseURL + "/list-of-user");
     }
 
     addNewCalorieRecord(calorieRecord) {
-        return baseAPI.post(baseURL, calorieRecord);
+        return baseAPI.post(baseURL + "/create", calorieRecord);
     }
 
     updateCalorieRecord(calorieRecord = {}) {
-        return baseAPI.put(baseURL + "/" + calorieRecord._id, calorieRecord);
+        return baseAPI.put(baseURL + "/update/" + calorieRecord._id, calorieRecord);
     }
 
     deleteCaloryRecord(calorieRecordId) {
-        return baseAPI.delete(baseURL + "/" + calorieRecordId);
+        return baseAPI.delete(baseURL + "/delete/" + calorieRecordId);
     }
 }
 

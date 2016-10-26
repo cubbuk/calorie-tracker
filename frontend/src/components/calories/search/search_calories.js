@@ -6,11 +6,15 @@ import {Button, Col, Modal, Row, Table} from "react-bootstrap";
 import {CTAlert, CTConfirmModal, CTError} from "../../../utility/components/_ct_components";
 import CalorieRecordFrom from "../_components/calorie_record_form/calorie_record_form";
 import calorieRecordsService from "../_services/calorie_records_service";
+import userRoleService from "../../users/_services/user_role_service";
+import appState from "../../../utility/app_state";
 
 class SearchCalories extends React.Component {
     constructor(props, context, ...args) {
         super(props, context, ...args);
         this.state = {calorieRecords: []};
+        this.hasAdminRole = userRoleService.hasAdminRole(appState.getUser());
+        this.retrieveCalorieRecords = this.hasAdminRole ? calorieRecordsService.retrieveCalorieRecords : calorieRecordsService.retrieveCalorieRecordsOfCurrentUser;
     }
 
     componentWillMount() {
@@ -19,10 +23,6 @@ class SearchCalories extends React.Component {
             totalCount: results.count,
             loaded: true
         })).catch(error => this.setState({error, loaded: true}));
-    }
-
-    retrieveCalorieRecords() {
-        return calorieRecordsService.retrieveCalorieRecords();
     }
 
     selectCalorieRecordToBeUpdated(calorieRecord) {
@@ -44,15 +44,19 @@ class SearchCalories extends React.Component {
     }
 
     renderCalorieRecord(calorieRecord = {}) {
-        let {_id, description, calorieAmount, createdAt} = calorieRecord;
+        let {_id, description, calorieAmount, createdAt, createdByUser = {}} = calorieRecord;
         return <tr key={_id}>
+            {this.hasAdminRole && <td>{createdByUser.fullName}</td>}
             <td>{description}</td>
             <td>{calorieAmount}</td>
             <td>{moment(createdAt).format("DD/MM/YYYY HH:mm")}</td>
             <td><Button bsStyle="info"
                         onClick={this.selectCalorieRecordToBeUpdated.bind(this, calorieRecord)}>Update</Button></td>
             <td><Button bsStyle="primary"
-                        onClick={() => this.setState({calorieRecordToBeDeleted: calorieRecord, deleteError: undefined})}>Delete</Button></td>
+                        onClick={() => this.setState({
+                            calorieRecordToBeDeleted: calorieRecord,
+                            deleteError: undefined
+                        })}>Delete</Button></td>
         </tr>
     }
 
@@ -153,7 +157,9 @@ class SearchCalories extends React.Component {
             <CTError error={error}/>
             <Row className="margin-bottom-20 margin-top-20">
                 <Col xs={12}>
-                    <Button bsStyle="primary" onClick={() => this.setState({addError: undefined, showNewCalorieRecordModal: true})}>Add new
+                    <Button bsStyle="primary"
+                            onClick={() => this.setState({addError: undefined, showNewCalorieRecordModal: true})}>Add
+                        new
                         record</Button>
                 </Col>
             </Row>
@@ -175,6 +181,7 @@ class SearchCalories extends React.Component {
                 {calorieRecords.length > 0 && <Table bordered responsive>
                     <thead>
                     <tr>
+                        {this.hasAdminRole && <th>Created By</th>}
                         <th>Description</th>
                         <th>Calories</th>
                         <th>Date</th>

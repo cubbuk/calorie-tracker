@@ -1,17 +1,42 @@
+const Promise = require("bluebird");
 const calorieRecordsService = require("../components/calorie-records/_services/calorie_records_service");
 const errorService = require("../utility/_services/error_service");
+const usersService = require("../components/users/_services/users_service");
+const userRoleService = require("../components/users/_services/user_role_service");
+const userRouteMiddleware = require("../components/users/_middlewares/user_route_middlewares");
+
 const calorieRoute = function (path, server) {
-    server.get(path, function (req, res, next) {
-        calorieRecordsService.retrieveCalorieRecords().then(records => {
+
+    const hasAdminRole = userRouteMiddleware.adminRoute.bind(userRouteMiddleware);
+
+    server.get(path + "/list", hasAdminRole, function (req, res, next) {
+        let {body = {}} = req;
+        let {searchParams = {}, orderParams = {}} = body;
+        calorieRecordsService.retrieveCalorieRecords(searchParams, orderParams).then(records => {
+            return usersService.fullfillUsersOfCalorieRecords(records);
+        }).then(records => {
             res.send(errorService.resultToStatusCode(records), {records: records, count: records.length});
             next();
         }).catch(error => {
             res.send(500, error);
             next();
-        })
+        });
     });
 
-    server.post(path, function (req, res, next) {
+    server.get(path + "/list-of-user", function (req, res, next) {
+        let {body = {}, user = {}} = req;
+        let {searchParams = {}, orderParams = {}} = body;
+        searchParams.createdBy = user._id;
+        calorieRecordsService.retrieveCalorieRecords(searchParams, orderParams).then(records => {
+            res.send(errorService.resultToStatusCode(records), {records: records, count: records.length});
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        });
+    });
+
+    server.post(path + "/create", function (req, res, next) {
         calorieRecordsService.addNewCalorieRecord(req.body, req.user._id).then(result => {
             res.send(errorService.resultToStatusCode(result), result);
             next();
@@ -21,7 +46,7 @@ const calorieRoute = function (path, server) {
         })
     });
 
-    server.put(path + "/:id", function (req, res, next) {
+    server.put(path + "/update/:id", function (req, res, next) {
         calorieRecordsService.updateCalorieRecord(req.params.id, req.body, req.user._id).then(result => {
             res.send(errorService.resultToStatusCode(result), result);
             next();
@@ -31,7 +56,7 @@ const calorieRoute = function (path, server) {
         })
     });
 
-    server.del(path + "/:id", function (req, res, next) {
+    server.del(path + "/delete/:id", function (req, res, next) {
         calorieRecordsService.deleteCalorieRecord(req.params.id).then(result => {
             res.send(errorService.resultToStatusCode(result), result);
             next();

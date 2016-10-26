@@ -15,8 +15,8 @@ class userForm extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         let {user = {}} = this.props;
-        let {user : nextuser = {}} = nextProps
-        if (user._id !== nextuser._id) {
+        let {user : nextUser = {}} = nextProps;
+        if (user._id !== nextUser._id) {
             this.setState({user: nextProps.user, formSubmitted: false});
         }
     }

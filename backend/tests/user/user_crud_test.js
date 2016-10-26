@@ -55,13 +55,11 @@ describe("User crud test", function () {
         const updatedName = "new name";
         return usersService.addNewUser(user, savedBy).then(newCreatedUser => {
             expect(newCreatedUser).to.have.property("_id");
-            let {password : hashedPassword} = newCreatedUser;
             delete newCreatedUser.password; //for not changing password during update, object should not contain password field
             newCreatedUser.fullName = updatedName;
             return usersService.updateUser(newCreatedUser._id, newCreatedUser, savedBy).then((updatedUser) => {
                 expect(updatedUser._id.toString()).to.equal(newCreatedUser._id.toString());
                 expect(updatedUser.fullName).to.equal(updatedName);
-                expect(updatedUser.password).to.equal(hashedPassword); //password should not change during update
             }).then(() => {
                 return usersService.deleteUser(newCreatedUser._id);
             });

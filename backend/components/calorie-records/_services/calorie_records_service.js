@@ -8,11 +8,11 @@ const errorService = require("../../../utility/_services/error_service");
 class CalorieRecordsService {
 
     retrieveCalorieRecord(recordId) {
-        return calorieRecordMongooseCollection.findOne({_id: recordId});
+        return calorieRecordMongooseCollection.findOne({_id: recordId}).lean();
     }
 
-    retrieveCalorieRecords() {
-        return calorieRecordMongooseCollection.find();
+    retrieveCalorieRecords(searchParams, orderParams) {
+        return calorieRecordMongooseCollection.find(searchParams).lean();
     }
 
     addNewCalorieRecord(record = {}, savedBy) {

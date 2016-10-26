@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const validate = require("validate.js");
 const Promise = require("bluebird");
 const mongoose = require("mongoose");
@@ -9,8 +10,40 @@ const userSessionTokenService = require("./user_session_token_service");
 
 class UsersService {
 
-    retrieveUser(recordId) {
-        return userMongooseCollection.findOne({_id: recordId}).lean();
+    retrieveUser(userId) {
+        return userMongooseCollection.findOne({_id: userId}, {password: 0}).lean();
+    }
+
+    userIdsToUserMap(userIds = []) {
+        return Promise.try(() => {
+            userIds = _.uniq(userIds);
+            return userMongooseCollection.find({_id: {$in: userIds}}, {password: 0}).lean().then((users) => {
+                const userMap = {};
+                users.forEach(user => {
+                    userMap[user._id] = user;
+                });
+                return userMap;
+            });
+        });
+    }
+
+    fullfillUsersOfCalorieRecords(records = []) {
+        return Promise.try(() => {
+            const allUserIds = [];
+            records.forEach(record => {
+                allUserIds.push(record.createdBy);
+                if (record.updatedBy) {
+                    allUserIds.push(record.updatedBy);
+                }
+            });
+            return this.userIdsToUserMap(allUserIds).then(userMap => {
+                records.forEach(record => {
+                    record.createdByUser = userMap[record.createdBy];
+                    record.updatedByUser = userMap[record.updatedBy];
+                });
+                return records;
+            });
+        })
     }
 
     findUserByUsername(username) {
