@@ -1,7 +1,8 @@
+import moment from "moment";
 import _ from "lodash";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Glyphicon, Modal, Panel, Row} from "react-bootstrap";
+import {Button, Col, Glyphicon, Label, Modal, Panel, Row} from "react-bootstrap";
 import {MultiMonthView} from "react-date-picker";
 import {CTConfirmModal, CTError, CTTimeSlider, CTPaginator} from "../../../utility/components/_ct_components";
 import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
@@ -12,6 +13,7 @@ import calorieRecordsService from "../_services/calorie_records_service";
 import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
 import appState from "../../../utility/app_state";
+import stringUtility from "../../../utility/services/string_utility";
 import {RESULTS_PER_PAGE} from "../../../utility/constants/ct_constants";
 
 class SearchCalories extends React.Component {
@@ -180,9 +182,10 @@ class SearchCalories extends React.Component {
         }
     }
 
-    onUserSelected(recordOwnerId) {
+    onUserSelected(selectedOption = {}) {
         let {searchParams = {}} = this.state;
-        searchParams.recordOwnerId = recordOwnerId;
+        searchParams.recordOwnerId = selectedOption.value;
+        this.recordOwnerName = selectedOption.label;
         this.searchCalorieRecords({searchParams, pageNumber: 1});
     }
 
@@ -255,9 +258,9 @@ class SearchCalories extends React.Component {
 
     renderFilters(showFilters) {
         let view = null;
+        let {searchParams} = this.state;
         if (showFilters) {
             const now = new Date();
-            let {searchParams} = this.state;
             view = <Row>
                 <Col xs={12}>
                     {this.hasAdminRole && <Row className="margin-bottom-20">
@@ -286,8 +289,38 @@ class SearchCalories extends React.Component {
                     </Row>
                 </Col>
             </Row>;
+        } else {
+            let {recordOwnerId, startDate, endDate, startMinutes = 0, endMinutes = 24 * 60} = searchParams;
+            return <Row>
+                <Col xs={12}>
+                    {recordOwnerId && this.renderFilterLabel(this.recordOwnerName)}
+                    {this.renderFilterLabel(this.toDateFilterLabel(startDate, endDate))}
+                    {this.renderFilterLabel(stringUtility.formatMinutes(startMinutes) + " - " + stringUtility.formatMinutes(endMinutes))}
+                </Col>
+            </Row>
         }
         return view;
+    }
+
+    toDateFilterLabel(startDate, endDate) {
+        const DATE_FORMAT = "DD/MM/YYYY";
+        if (startDate || endDate) {
+            if (moment(startDate).format(DATE_FORMAT) === moment(endDate).format(DATE_FORMAT)) {
+                return moment(startDate).format(DATE_FORMAT);
+            } else {
+                return moment(startDate).format(DATE_FORMAT) + " - " + moment(endDate).format(DATE_FORMAT);
+            }
+        }
+    }
+
+    renderFilterLabel(children) {
+        return <Label bsStyle="primary"
+                      onClick={this.openFilters.bind(this)}
+                      className="pointer margin-right-5">{children}</Label>;
+    }
+
+    openFilters() {
+        this.setState({showFilters: true});
     }
 
     renderPanelHeader() {

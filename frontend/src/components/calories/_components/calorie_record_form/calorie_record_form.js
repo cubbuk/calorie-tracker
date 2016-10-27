@@ -40,9 +40,9 @@ class calorieRecordForm extends React.Component {
         this.setState({formSubmitted: true});
     }
 
-    onValueChange(fieldName, value) {
+    onValueChange(fieldName, selectedOption = {}) {
         let {calorieRecord = {}} = this.state;
-        calorieRecord[fieldName] = value;
+        calorieRecord[fieldName] = selectedOption.value;
         this.setState({calorieRecord});
     }
 

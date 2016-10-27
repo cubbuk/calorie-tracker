@@ -54,6 +54,10 @@ body > .container.no-padding {
     padding: 0px 0px 0px 0px;
 }
 
+.pointer{
+    cursor: pointer;
+}
+
 .no-margin {
     margin: 0 0 0 0;
 }

@@ -41,12 +41,12 @@ class SelectUser extends React.Component {
         }, 500);
     }
 
-    onChange(value = {}) {
+    onChange(selectedOption = {}) {
         if (this.props.onChange instanceof Function) {
-            this.props.onSelect(value);
+            this.props.onSelect(selectedOption);
         }
         if (this.props.onSelect instanceof Function) {
-            this.props.onSelect(value ? value.value : "");
+            this.props.onSelect(selectedOption ? selectedOption : "");
         }
     }
 
