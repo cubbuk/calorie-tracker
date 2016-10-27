@@ -322,11 +322,11 @@ class SearchCalories extends React.Component {
         let {error, addError, updateError, pageNumber = 1, showDailyCalorieRecordSummaries} = this.state;
         return <div>
             <CTError error={error}/>
-            {this.renderCalorieDeleteModal()}
             <Loader loaded={loaded}>
                 <Panel bsStyle="primary" header={this.renderPanelHeader()}>
                     {this.renderFilters(showFilters)}
                 </Panel>
+                {this.renderCalorieDeleteModal()}
                 {this.renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding, addError)}
                 {this.renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError)}
                 {this.renderDailyCalorieRecordSummariesModal(showDailyCalorieRecordSummaries)}
