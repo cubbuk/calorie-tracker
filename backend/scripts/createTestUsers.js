@@ -23,7 +23,7 @@ function createTestUsers() {
             fullName: "Admin Doe",
             caloriesPerDay: 1542,
             password: "123456",
-            roles: [userRoleService.getUserRoleMap().ADMIN]
+            roles: [userRoleService.getUserRoleMap().USER, userRoleService.getUserRoleMap().MANAGER, userRoleService.getUserRoleMap().ADMIN]
         }];
 
     let promises = users.map(user => usersService.addNewUser(user));
