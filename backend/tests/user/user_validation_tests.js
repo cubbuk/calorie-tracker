@@ -1,7 +1,12 @@
 const expect = require("chai").expect;
 const usersService = require("../../components/users/_services/users_service");
+const test_utility = require("../../utility/test_utility");
 
 describe("User validation test", function () {
+
+    before(function () {
+        return test_utility.dropTestDatabase();
+    });
 
     it("username needs to be at least 3 characters", function (done) {
         let user = {username: "na"};
@@ -31,9 +36,18 @@ describe("User validation test", function () {
         done();
     });
 
+    after(function () {
+        return test_utility.dropTestDatabase();
+    });
+
 });
 
 describe("Password validation test", function () {
+
+    before(function () {
+        return test_utility.dropTestDatabase();
+    });
+
     it("password needs to be at between 6 and 20 characters ", function (done) {
         let password = "weak";
         let validationResults = usersService.validatePassword(password);
@@ -51,5 +65,9 @@ describe("Password validation test", function () {
         let validationResults = usersService.validatePassword(password);
         expect(validationResults).to.not.exist;
         done();
+    });
+
+    after(function () {
+        return test_utility.dropTestDatabase();
     });
 });

@@ -2,9 +2,14 @@ const expect = require("chai").expect;
 const usersService = require("../../components/users/_services/users_service");
 const error_service = require("../../utility/_services/error_service");
 const mongoose = require("mongoose");
+const test_utility = require("../../utility/test_utility");
 
 const savedBy = mongoose.Types.ObjectId();
 describe("User crud test", function () {
+
+    before(function () {
+        return test_utility.dropTestDatabase();
+    });
 
     it("not valid user will not be added", function () {
         let user = {username: "na"};
@@ -96,6 +101,10 @@ describe("User crud test", function () {
                 return usersService.deleteUser(newCreatedUser._id);
             });
         });
+    });
+
+    after(function () {
+        return test_utility.dropTestDatabase();
     });
 
 });
