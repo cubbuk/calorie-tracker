@@ -40,7 +40,8 @@ class SearchUsers extends React.Component {
                     pageNumber,
                     users: results.records,
                     totalCount: results.count,
-                    isSearching: false
+                    isSearching: false,
+                    error: undefined
                 });
             }).catch(error => {
                 clearTimeout(this.searchTimeout);
@@ -176,9 +177,9 @@ class SearchUsers extends React.Component {
         this.searchUsers({pageNumber});
     }
 
-    selectUser(userId) {
+    selectUser(selectedOption = {}) {
         let {searchParams = {}} = this.state;
-        searchParams.userId = userId;
+        searchParams.userId = selectedOption.value;
         this.searchUsers({searchParams, pageNumber: 1});
     }
 

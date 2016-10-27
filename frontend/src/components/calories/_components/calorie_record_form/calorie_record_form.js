@@ -40,9 +40,15 @@ class calorieRecordForm extends React.Component {
         this.setState({formSubmitted: true});
     }
 
-    onValueChange(fieldName, selectedOption = {}) {
+    onValueChange(fieldName, value) {
         let {calorieRecord = {}} = this.state;
-        calorieRecord[fieldName] = selectedOption.value;
+        calorieRecord[fieldName] = value;
+        this.setState({calorieRecord});
+    }
+
+    onUserSelected(selectedOption = {}) {
+        let {calorieRecord = {}} = this.state;
+        calorieRecord.recordOwnerId = selectedOption.value;
         this.setState({calorieRecord});
     }
 
@@ -70,7 +76,7 @@ class calorieRecordForm extends React.Component {
                 <SelectUser
                     autoBlur
                     autoload={false}
-                    onSelect={this.onValueChange.bind(this, "recordOwnerId")}
+                    onSelect={this.onUserSelected.bind(this)}
                     placeholder="Search for user"
                     value={recordOwnerId}/>
             </CTFormInput>}
@@ -88,7 +94,7 @@ class calorieRecordForm extends React.Component {
                          value={calorieAmount}
                          validationFunction={(calorieAmount) => validate({calorieAmount}, calorieRecordConstraints.calorieAmount(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "calorieAmount")}/>
-            <CTFormInput label={"Record Date" + moment(recordDate).format(this.dateFormat)}>
+            <CTFormInput label="Record Date">
                 <Calendar dateFormat={this.dateFormat}
                           defaultDate={moment(recordDate).format(this.dateFormat)}
                           onChange={this.onDateChanged.bind(this)}/>
