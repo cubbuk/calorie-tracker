@@ -187,7 +187,8 @@ class UsersService {
     }
 
     deleteUser(userId) {
-        return userMongooseCollection.remove({_id: userId});
+        //invalidate existing session tokens too
+        return userMongooseCollection.remove({_id: userId}).then(() => userSessionTokenService.invalidateTokenByUserId(userId));
     }
 
     validateUser(record) {
