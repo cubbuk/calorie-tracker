@@ -1,5 +1,5 @@
 const CT_CONSTANTS = {
-    RESULTS_PER_PAGE: 1
+    RESULTS_PER_PAGE: 10
 };
 
 module.exports = CT_CONSTANTS;
