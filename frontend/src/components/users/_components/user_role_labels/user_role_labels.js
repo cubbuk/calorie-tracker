@@ -9,7 +9,7 @@ class UserRoleLabels extends React.Component {
 
     render() {
         let {roles = [], ...otherProps} = this.props;
-        return <span>{roles.map(role => <Label {...otherProps}>{userRoleService.userRoleToLabel(role)}</Label>)}</span>;
+        return <span>{roles.map((role, index) => <Label key={index} {...otherProps}>{userRoleService.userRoleToLabel(role)}</Label>)}</span>;
     }
 }
 

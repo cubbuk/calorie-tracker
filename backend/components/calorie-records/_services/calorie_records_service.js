@@ -78,10 +78,10 @@ class CalorieRecordsService {
     addNewCalorieRecord(record = {}, savedBy) {
         return Promise.try(() => {
             record.recordDate = record.recordDate || new Date();
+            record.recordOwnerId = record.recordOwnerId || savedBy;
             const validationResult = this.validateCalorieRecord(record);
             if (!validationResult) {
                 record._id = mongoose.Types.ObjectId();
-                record.recordOwnerId = record.recordOwnerId || savedBy;
                 record.createdAt = new Date();
                 record.createdBy = savedBy;
                 record.timeInMinutes = this.recordTimeToMinutes(record.recordDate);
@@ -97,6 +97,9 @@ class CalorieRecordsService {
             const validationResult = this.validateCalorieRecord(record);
             if (!validationResult) {
                 delete record._id;
+                if(!record.recordOwnerId){
+                    delete record.recordOwnerId;
+                }
                 record.timeInMinutes = this.recordTimeToMinutes(record.recordDate);
                 record.updatedAt = new Date();
                 record.updatedBy = savedBy;

@@ -1,13 +1,12 @@
 import _ from "lodash";
-import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Glyphicon, Label, Modal, Panel, Row, Table} from "react-bootstrap";
+import {Button, Col, Glyphicon, Modal, Panel, Row} from "react-bootstrap";
 import {MultiMonthView} from "react-date-picker";
-import {CTAlert, CTConfirmModal, CTError, CTTimeSlider, CTPaginator} from "../../../utility/components/_ct_components";
+import {CTConfirmModal, CTError, CTTimeSlider, CTPaginator} from "../../../utility/components/_ct_components";
 import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
+import CalorieRecordsTable from "../../users/_components/calorie_records_table/calorie_records_table";
 import SelectUser from "../../users/_components/select_user/select_user";
-import UserRoleLabels from "../../users/_components/user_role_labels/user_role_labels";
 import DailyCalorieRecordsSummaryTable from "../_components/daily_calorie_records_summary_table/daily_calorie_records_summary_table";
 import calorieRecordsService from "../_services/calorie_records_service";
 import usersService from "../../users/_services/users_service";
@@ -28,16 +27,9 @@ class SearchCalories extends React.Component {
     }
 
     componentWillMount() {
-        let {searchParams = {}, pageNumber = 1} = this.state;
-        this.retrieveCalorieRecords({
-            searchParams,
-            pageNumber,
-            resultsPerPage: RESULTS_PER_PAGE
-        }).then((results = {records: [], count: 0}) => this.setState({
-            calorieRecords: results.records,
-            totalCount: results.count,
-            loaded: true
-        })).catch(error => this.setState({error, loaded: true}));
+        this.searchCalorieRecords()
+            .then(() => this.setState({loaded: true}))
+            .catch(error => this.setState({error, loaded: true}));
     }
 
     componentWillUnmount() {
@@ -46,51 +38,6 @@ class SearchCalories extends React.Component {
 
     selectCalorieRecordToBeUpdated(calorieRecord) {
         this.setState({calorieRecordToBeUpdated: _.clone(calorieRecord), updateError: undefined});
-    }
-
-    updateCalorieRecord(calorieRecord) {
-        this.setState({isUpdating: true});
-        let {searchParams = {}, pageNumber = 1} = this.state;
-        calorieRecordsService.updateCalorieRecord(calorieRecord).then(() => this.retrieveCalorieRecords({
-            searchParams,
-            pageNumber,
-            resultsPerPage: RESULTS_PER_PAGE
-        })).then(results => {
-            this.setState({
-                calorieRecords: results.records,
-                totalCount: results.count,
-                updateError: undefined,
-                isUpdating: false,
-                calorieRecordToBeUpdated: undefined
-            });
-        }).catch(updateError => this.setState({updateError, isUpdating: false}));
-    }
-
-    renderCalorieRecord(calorieRecord = {}) {
-        let {_id, description, calorieAmount, recordDate, recordOwner = {}} = calorieRecord;
-        return <tr key={_id}>
-            {this.hasAdminRole && <td>
-                <div>{recordOwner.fullName}</div>
-                <div>
-                    <small className="text-muted">{recordOwner.username}</small>
-                </div>
-                <div><UserRoleLabels roles={recordOwner.roles || []}/></div>
-            </td>}
-            <td>{description}</td>
-            <td>{calorieAmount}</td>
-            <td>{moment(recordDate).format("DD/MM/YYYY HH:mm")}</td>
-            <td><Button bsStyle="info"
-                        onClick={this.selectCalorieRecordToBeUpdated.bind(this, calorieRecord)}>Update</Button></td>
-            <td><Button bsStyle="primary"
-                        onClick={() => this.setState({
-                            calorieRecordToBeDeleted: calorieRecord,
-                            deleteError: undefined
-                        })}>Delete</Button></td>
-        </tr>
-    }
-
-    onCancelUpdate() {
-        this.setState({calorieRecordToBeUpdated: undefined});
     }
 
     renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError) {
@@ -119,24 +66,29 @@ class SearchCalories extends React.Component {
         return view;
     }
 
+    onCancelUpdate() {
+        this.setState({calorieRecordToBeUpdated: undefined});
+    }
+
+    updateCalorieRecord(calorieRecord) {
+        this.setState({isUpdating: true});
+        calorieRecordsService.updateCalorieRecord(calorieRecord)
+            .then(() => this.searchCalorieRecords())
+            .then(() =>
+                this.setState({
+                    updateError: undefined,
+                    isUpdating: false,
+                    calorieRecordToBeUpdated: undefined
+                }))
+            .catch(updateError => this.setState({updateError, isUpdating: false}));
+    }
+
     onCancelNewRecord() {
         this.setState({showNewCalorieRecordModal: false});
     }
 
-    addNewCalorieRecord(newCalorieRecord) {
-        this.setState({isAdding: true});
-        let {searchParams = {}, pageNumber = 1} = this.state;
-        calorieRecordsService.addNewCalorieRecord(newCalorieRecord)
-            .then(() => this.retrieveCalorieRecords({searchParams, pageNumber, resultsPerPage: RESULTS_PER_PAGE}))
-            .then((results) => {
-                this.setState({
-                    calorieRecords: results.records,
-                    totalCount: results.count,
-                    addError: undefined,
-                    isAdding: false,
-                    showNewCalorieRecordModal: false
-                });
-            }).catch(addError => this.setState({addError, isAdding: false}));
+    openAddNewCalorieRecordModal() {
+        this.setState({addError: undefined, showNewCalorieRecordModal: true});
     }
 
     renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding, addError) {
@@ -164,23 +116,52 @@ class SearchCalories extends React.Component {
         return view;
     }
 
-    cancelDeletionOfCaleryRecord() {
+    addNewCalorieRecord(newCalorieRecord) {
+        this.setState({isAdding: true});
+        calorieRecordsService.addNewCalorieRecord(newCalorieRecord)
+            .then(() => this.searchCalorieRecords({pageNumber: 1}))
+            .then(() => {
+                this.setState({
+                    addError: undefined,
+                    isAdding: false,
+                    showNewCalorieRecordModal: false
+                });
+            }).catch(addError => this.setState({addError, isAdding: false}));
+    }
+
+    selectCalorieRecordToBeDeleted(calorieRecord) {
+        this.setState({calorieRecordToBeDeleted: calorieRecord, deleteError: undefined});
+    }
+
+    cancelDeletionOfCalorieRecord() {
         this.setState({calorieRecordToBeDeleted: undefined});
+    }
+
+    renderCalorieDeleteModal() {
+        let {isDeleting, calorieRecordToBeDeleted, deleteError} = this.state;
+        let cancelDeletionOfCalorieRecord = this.cancelDeletionOfCalorieRecord.bind(this);
+        let view = null;
+        if (calorieRecordToBeDeleted) {
+            view = <CTConfirmModal disabled={isDeleting}
+                                   show
+                                   onCancel={cancelDeletionOfCalorieRecord}
+                                   onConfirm={this.deleteRecord.bind(this, calorieRecordToBeDeleted)}
+                                   onHide={cancelDeletionOfCalorieRecord}>
+                <Loader loaded={!isDeleting}/>
+                <CTError error={deleteError}/>
+                Do you confirm deleting this record?
+            </CTConfirmModal>
+        }
+        return view;
     }
 
     deleteRecord(calorieRecordToBeDeleted) {
         this.setState({isDeleting: true});
-        let {searchParams = {}, pageNumber = 1} = this.state;
+        console.log(calorieRecordToBeDeleted);
         calorieRecordsService.deleteCaloryRecord(calorieRecordToBeDeleted._id)
-            .then(() => this.retrieveCalorieRecords({
-                searchParams,
-                pageNumber,
-                resultsPerPage: RESULTS_PER_PAGE
-            }))
-            .then((results) => {
+            .then(() => this.searchCalorieRecords({pageNumber: 1}))
+            .then(() => {
                 this.setState({
-                    calorieRecords: results.records,
-                    totalCount: results.count,
                     deleteError: undefined,
                     isDeleting: false,
                     calorieRecordToBeDeleted: undefined
@@ -193,7 +174,7 @@ class SearchCalories extends React.Component {
         searchParams.startDate = rangeArrayAsObject[0] ? rangeArrayAsObject[0].dateMoment.toDate() : undefined;
         searchParams.endDate = rangeArrayAsObject[1] ? rangeArrayAsObject[1].dateMoment.toDate() : undefined;
         if (searchParams.endDate) {
-            this.search(searchParams, 1);
+            this.searchCalorieRecords({searchParams, pageNumber: 1});
         } else {
             this.setState({searchParams});
         }
@@ -202,41 +183,40 @@ class SearchCalories extends React.Component {
     onUserSelected(recordOwnerId) {
         let {searchParams = {}} = this.state;
         searchParams.recordOwnerId = recordOwnerId;
-        this.search(searchParams, 1);
+        this.searchCalorieRecords({searchParams, pageNumber: 1});
     }
 
     onTimeFilterChanged(startTime, endTime) {
         let {searchParams = {}} = this.state;
         searchParams.startMinutes = startTime;
         searchParams.endMinutes = endTime;
-        this.search(searchParams, 1);
-    }
-
-    search(searchParams, pageNumber = this.state.pageNumber) {
-        this.searchTimeout = setTimeout(() => this.setState({isSearching: true}), 500); //if search does not finish in given period, show an indicator
-        this.retrieveCalorieRecords({
-            searchParams,
-            pageNumber,
-            resultsPerPage: RESULTS_PER_PAGE
-        }).then((results = {records: [], count: 0}) => {
-            clearTimeout(this.searchTimeout);
-            this.setState({
-                calorieRecords: results.records,
-                totalCount: results.count,
-                isSearching: false,
-                searchParams,
-                pageNumber
-            })
-        }).catch(error => {
-            clearTimeout(this.searchTimeout);
-            this.setState({error, isSearching: false})
-        });
+        this.searchCalorieRecords({searchParams, pageNumber: 1});
     }
 
     selectPage(pageNumber) {
-        this.setState({pageNumber});
-        let {searchParams = {}} = this.state;
-        this.search(searchParams, pageNumber);
+        this.searchCalorieRecords({pageNumber});
+    }
+
+    searchCalorieRecords(params = {}) {
+        params.searchParams = params.searchParams || this.state.searchParams;
+        params.pageNumber = params.pageNumber || this.state.pageNumber;
+        params.resultsPerPage = RESULTS_PER_PAGE;
+        this.searchTimeout = setTimeout(() => this.setState({isSearching: true}), 500); //if search does not finish in given period, show an indicator
+        return this.retrieveCalorieRecords(params)
+            .then((results = {records: [], count: 0}) => {
+                clearTimeout(this.searchTimeout);
+                let {searchParams = {}, pageNumber = 1} = params;
+                return this.setState({
+                    calorieRecords: results.records,
+                    totalCount: results.count,
+                    isSearching: false,
+                    searchParams,
+                    pageNumber
+                });
+            }).catch(error => {
+                clearTimeout(this.searchTimeout);
+                this.setState({error, isSearching: false})
+            });
     }
 
     retrieveDailySummaries(searchParams = {}) {
@@ -273,102 +253,93 @@ class SearchCalories extends React.Component {
         return view;
     }
 
-    render() {
-        let {calorieRecords = [], totalCount = calorieRecords.length, calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showsearchParams, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
-        let {error, deleteError, addError, updateError, searchParams = {}, isSearching, pageNumber = 1, showDailyCalorieRecordSummaries} = this.state;
-        let cancelDeletionOfCaleryRecord = this.cancelDeletionOfCaleryRecord.bind(this);
-        const now = new Date();
-        const paginatorComponent = <CTPaginator bsSize="medium"
-                                                style={{marginTop: "0px"}}
-                                                total={totalCount}
-                                                activePage={pageNumber}
-                                                resultsPerPage={RESULTS_PER_PAGE}
-                                                onSelect={this.selectPage.bind(this)}/>;
-        return <div>
-            <CTError error={error}/>
-            <CTConfirmModal disabled={isDeleting}
-                            show={!!calorieRecordToBeDeleted}
-                            onCancel={cancelDeletionOfCaleryRecord}
-                            onConfirm={this.deleteRecord.bind(this, calorieRecordToBeDeleted)}
-                            onHide={cancelDeletionOfCaleryRecord}>
-                <Loader loaded={!isDeleting}/>
-                <CTError error={deleteError}/>
-                Do you confirm deleting this record?
-            </CTConfirmModal>
-            <Loader loaded={loaded}>
-                <Panel bsStyle="primary" header={<Row>
-                    <Col xs={12}>
-                        <Button className="margin-right-10"
-                                onClick={() => this.setState({addError: undefined, showNewCalorieRecordModal: true})}>
-                            Add new record&nbsp;<Glyphicon glyph="plus"/>
-                        </Button>
-                        <Button className="margin-right-10"
-                                onClick={() => this.setState({showsearchParams: !showsearchParams})}>
-                            {showsearchParams ? "Hide Filters" : "Show Filters"}
-                            &nbsp;<Glyphicon glyph="filter"/>
-                        </Button>
-                        <Button className="margin-right-10"
-                                disabled={calorieRecords.length === 0}
-                                onClick={this.retrieveDailySummaries.bind(this, searchParams)}>
-                            Daily Summaries&nbsp;<Glyphicon glyph="list"/>
-                        </Button>
-                        <Button onClick={this.search.bind(this, searchParams, pageNumber)}>Search&nbsp;<Glyphicon
-                            glyph="search"/></Button>
-                        {isSearching && <img width={35} className="margin-left-10"
-                                             src={require("../../../assets/images/loading.gif")}/>}
-                    </Col>
-                </Row>}>
-                    {showsearchParams && <Row>
-                        <Col xs={12}>
-                            {this.hasAdminRole && <Row className="margin-bottom-20">
-                                <Col xs={12} sm={12} md={3}>
-                                    <SelectUser
-                                        autoBlur
-                                        autoload={false}
-                                        onSelect={this.onUserSelected.bind(this)}
-                                        placeholder="Search for user"
-                                        value={searchParams.recordOwnerId}/>
-                                </Col>
-                            </Row>}
-                            <Row className="margin-bottom-20">
-                                <Col xs={12}>
-                                    <MultiMonthView weekNumbers={true}
-                                                    defaultRange={[searchParams.startDate || now, searchParams.endDate || now]}
-                                                    highlightRangeOnMouseMove
-                                                    onRangeChange={this.rangeChanged.bind(this)}/>
-                                </Col>
-                            </Row>
-                            <Row className="margin-bottom-20">
-                                <Col xs={12} md={3}>
-                                    <div className="margin-bottom-10">Time Filter</div>
-                                    <CTTimeSlider onTimeChanged={this.onTimeFilterChanged.bind(this)}/>
-                                </Col>
-                            </Row>
+    renderFilters(showFilters) {
+        let view = null;
+        if (showFilters) {
+            const now = new Date();
+            let {searchParams} = this.state;
+            view = <Row>
+                <Col xs={12}>
+                    {this.hasAdminRole && <Row className="margin-bottom-20">
+                        <Col xs={12} sm={12} md={3}>
+                            <SelectUser
+                                autoBlur
+                                autoload={false}
+                                onSelect={this.onUserSelected.bind(this)}
+                                placeholder="Search for user"
+                                value={searchParams.recordOwnerId}/>
                         </Col>
                     </Row>}
+                    <Row style={{marginBottom: "40px", marginLeft: "-5px"}}>
+                        <Col xs={12} md={3}>
+                            <div className="margin-bottom-10">Time Filter</div>
+                            <CTTimeSlider onTimeChanged={this.onTimeFilterChanged.bind(this)}/>
+                        </Col>
+                    </Row>
+                    <Row className="margin-bottom-20">
+                        <Col xs={12}>
+                            <MultiMonthView weekNumbers={true}
+                                            defaultRange={[searchParams.startDate || now, searchParams.endDate || now]}
+                                            highlightRangeOnMouseMove
+                                            onRangeChange={this.rangeChanged.bind(this)}/>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>;
+        }
+        return view;
+    }
+
+    renderPanelHeader() {
+        let {isSearching, pageNumber, searchParams, showFilters, calorieRecords = []} = this.state;
+        return <Row>
+            <Col xs={12}>
+                <Button className="margin-right-10"
+                        onClick={this.openAddNewCalorieRecordModal.bind(this)}>
+                    Add new record&nbsp;<Glyphicon glyph="plus"/>
+                </Button>
+                <Button className="margin-right-10"
+                        onClick={() => this.setState({showFilters: !showFilters})}>
+                    {showFilters ? "Hide Filters" : "Show Filters"}
+                    &nbsp;<Glyphicon glyph="filter"/>
+                </Button>
+                <Button className="margin-right-10"
+                        disabled={calorieRecords.length === 0}
+                        onClick={this.retrieveDailySummaries.bind(this, searchParams)}>
+                    Daily Summaries&nbsp;<Glyphicon glyph="list"/>
+                </Button>
+                <Button onClick={this.searchCalorieRecords.bind(this, {searchParams, pageNumber})}>Search&nbsp;
+                    <Glyphicon
+                        glyph="search"/></Button>
+                {isSearching && <img width={35} className="margin-left-10"
+                                     src={require("../../../assets/images/loading.gif")}/>}
+            </Col>
+        </Row>;
+    }
+
+    render() {
+        let {calorieRecords = [], totalCount = 0, calorieRecordToBeUpdated, loaded, showFilters, showNewCalorieRecordModal, isUpdating, isAdding} = this.state;
+        let {error, addError, updateError, pageNumber = 1, showDailyCalorieRecordSummaries} = this.state;
+        return <div>
+            <CTError error={error}/>
+            {this.renderCalorieDeleteModal()}
+            <Loader loaded={loaded}>
+                <Panel bsStyle="primary" header={this.renderPanelHeader()}>
+                    {this.renderFilters(showFilters)}
                 </Panel>
                 {this.renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding, addError)}
                 {this.renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError)}
                 {this.renderDailyCalorieRecordSummariesModal(showDailyCalorieRecordSummaries)}
-                <CTAlert show={calorieRecords.length === 0}>
-                    There isn't any record.
-                </CTAlert>
-                {calorieRecords.length > 0 && <Table bordered responsive>
-                    <thead>
-                    <tr>
-                        {this.hasAdminRole && <th>User</th>}
-                        <th>Description</th>
-                        <th>Calories</th>
-                        <th>Date</th>
-                        <th>Update</th>
-                        <th>Delete</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {calorieRecords.map(this.renderCalorieRecord.bind(this))}
-                    </tbody>
-                </Table>}
-                {paginatorComponent}
+                <CalorieRecordsTable calorieRecords={calorieRecords}
+                                     adminView={this.hasAdminRole}
+                                     onUpdateClicked={this.selectCalorieRecordToBeUpdated.bind(this)}
+                                     onDeleteClicked={this.selectCalorieRecordToBeDeleted.bind(this)}/>
+                <CTPaginator bsSize="medium"
+                             style={{marginTop: "0px"}}
+                             total={totalCount}
+                             activePage={pageNumber}
+                             resultsPerPage={RESULTS_PER_PAGE}
+                             onSelect={this.selectPage.bind(this)}/>
             </Loader>
         </div>;
     }
