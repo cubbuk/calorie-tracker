@@ -39,7 +39,7 @@ class IndexNavbar extends React.Component {
                 </Nav>}
                 <Nav pullRight>
                     {user && <NavDropdown eventKey={3} title={fullName} id="basic-nav-dropdown">
-                        <MenuItem eventKey={3.1}><Link to="users/profile"><Glyphicon glyph="user"/>&nbsp;Settings</Link></MenuItem>
+                        <MenuItem eventKey={3.1}><Link to="users/profile"><Glyphicon glyph="user"/>&nbsp;Profile</Link></MenuItem>
                         <MenuItem eventKey={3.1}><Link to="users/change-password"><Glyphicon glyph="lock"/>&nbsp;Change Password</Link></MenuItem>
                         <MenuItem eventKey={3.2} onClick={this.onLogout.bind(this)}><Glyphicon glyph="log-out"/>&nbsp;Logout</MenuItem>
                     </NavDropdown>}

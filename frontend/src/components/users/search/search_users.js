@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
+import {Button, Col, Glyphicon, Modal, PageHeader, Panel, Row, Table} from "react-bootstrap";
 import {CTAlert, CTConfirmModal, CTError, CTPaginator} from "../../../utility/components/_ct_components";
 import SelectUser from "../_components/select_user/select_user";
 import UserRoleLabels from "../_components/user_role_labels/user_role_labels";
@@ -195,6 +195,7 @@ class SearchUsers extends React.Component {
                                                 onSelect={this.selectPage.bind(this)}/>;
 
         return <div>
+            <PageHeader>Users</PageHeader>
             <CTError error={error}/>
             <Panel bsStyle="primary" header={<Row>
                 <Col xs={12}>

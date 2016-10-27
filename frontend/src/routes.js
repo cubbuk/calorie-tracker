@@ -1,7 +1,7 @@
 import React from "react";
 import {Route, IndexRoute} from "react-router";
 import Index from "components/index/index";
-import SearchCalories from "components/calories/search/search_calories";
+import CaloriesHome from "components/calories/calories_home";
 import Login from "components/login/login";
 import Signup from "components/signup/signup";
 import NoMatch from "components/no_match";
@@ -11,7 +11,7 @@ import usersRoute from "routes/users/users_route";
 
 const routes = (
     <Route path="/" component={Index}>
-        <IndexRoute component={SearchCalories} onEnter={routesService.requireAuth}/>
+        <IndexRoute component={CaloriesHome} onEnter={routesService.requireAuth}/>
         <Route path="login" component={Login} onEnter={routesService.alreadyLoggedIn}/>
         <Route path="signup" component={Signup} onEnter={routesService.alreadyLoggedIn}/>
         {caloriesRoute}

@@ -1,4 +1,5 @@
 import React, {PropTypes} from "react";
+import SearchUsers from "./search/search_users";
 
 class UsersHome extends React.Component {
 
@@ -9,7 +10,9 @@ class UsersHome extends React.Component {
 
     render() {
         let {children} = this.props;
-        return <div>{children}</div>;
+        return <div>
+            {children || SearchUsers}
+        </div>;
     }
 }
 
