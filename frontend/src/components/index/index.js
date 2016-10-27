@@ -16,13 +16,15 @@ class Index extends React.Component {
         this.authenticationListener = publisher.subscribeToEvent(events.AUTHENTICATION_ERROR, this.onAuthenticationError.bind(this))
         this.authorizationListener = publisher.subscribeToEvent(events.AUTHORIZATION_ERROR, this.onAuthorizationError.bind(this))
         this.userUpdatedListener = publisher.subscribeToEvent(events.USER_UPDATED, this.onUserUpdated.bind(this))
+        this.displayMessageListener = publisher.subscribeToEvent(events.DISPLAY_MESSAGE, this.onDisplayMessage.bind(this))
     }
 
     componentWillUnmount() {
         publisher.removeGivenListener(this.authenticationListener);
         publisher.removeGivenListener(this.authorizationListener);
         publisher.removeGivenListener(this.userUpdatedListener);
-        clearTimeout(this.closeProfileUpdateTimeout);
+        publisher.removeGivenListener(this.displayMessageListener);
+        clearTimeout(this.closeDisplayMessageTimeout);
     }
 
     onAuthenticationError() {
@@ -31,11 +33,15 @@ class Index extends React.Component {
     }
 
     onUserUpdated(user) {
-        clearTimeout(this.closeProfileUpdateTimeout);
         appState.setUser(user).then(() => {
-            this.setState({showProfileUpdatedModal: true})
-            this.closeProfileUpdateTimeout = setTimeout(() => this.setState({showProfileUpdatedModal: false}), 1000);
+            this.onDisplayMessage({header: "Profile updated"});
         });
+    }
+
+    onDisplayMessage(displayMessageObject) {
+        clearTimeout(this.closeDisplayMessageTimeout);
+        this.setState({displayMessageObject});
+        this.closeDisplayMessageTimeout = setTimeout(() => this.setState({displayMessageObject: undefined}), 1000);
     }
 
     onAuthorizationError() {
@@ -48,14 +54,26 @@ class Index extends React.Component {
         router.push("/");
     }
 
-    closeProfileUpdateModal() {
-        clearTimeout(this.closeProfileUpdateTimeout);
-        this.setState({showProfileUpdatedModal: false});
+    closeDisplayMessage() {
+        clearTimeout(this.closeDisplayMessageTimeout);
+        this.setState({displayMessageObject: undefined});
+    }
+
+    renderDisplayMessageModal(displayMessageObject = {}) {
+        let {header, body} = displayMessageObject;
+        let view = null;
+        if (header || body) {
+            view = <Modal show onHide={this.closeDisplayMessage.bind(this)}>
+                {header && <Modal.Header closeButton>{header}</Modal.Header>}
+                {body && <Modal.Body>{body}</Modal.Body>}
+            </Modal>
+        }
+        return view;
     }
 
     render() {
         let {children} = this.props;
-        let {showAuthorizationErrorModal, showProfileUpdatedModal} = this.state;
+        let {showAuthorizationErrorModal, displayMessageObject} = this.state;
         return <div>
             <IndexNavbar/>
             <div className="container" style={{marginTop: "71px"}}>
@@ -69,12 +87,7 @@ class Index extends React.Component {
                             zone</Button>
                     </Modal.Footer>;
                 </Modal>
-                <Modal show={showProfileUpdatedModal} onHide={this.closeProfileUpdateModal.bind(this)}>
-                    <Modal.Body>Your profile is updated</Modal.Body>
-                    <Modal.Footer>
-                        <Button bsStyle="primary" onClick={this.closeProfileUpdateModal.bind(this)}>Ok</Button>
-                    </Modal.Footer>;
-                </Modal>
+                {this.renderDisplayMessageModal(displayMessageObject)}
                 {!showAuthorizationErrorModal && children}
             </div>
             <div className="beforeFooter"></div>

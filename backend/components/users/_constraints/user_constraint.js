@@ -62,6 +62,10 @@ class UserConstraints {
         return _.extend({}, this.username(), this.fullName(), this.caloriesPerDay());
     }
 
+    profileUpdateConstraint(){
+        return _.extend({}, this.fullName(), this.caloriesPerDay());
+    }
+
 }
 
 module.exports = new UserConstraints();

@@ -40,17 +40,19 @@ class UsersService {
     }
 
     updateProfileInfo(userId, profileInfo) {
-        let {fullName, password, caloriesPerDay = 0} = profileInfo;
         return Promise.try(() => {
-            if (password) {
-                return securityService.hashPassword(password);
+            let {fullName, caloriesPerDay} = profileInfo;
+            let validationResult = validate({fullName, caloriesPerDay}, userConstraint.profileUpdateConstraint(), {fullMessages: false});
+            if (!validationResult) {
+                return userMongooseCollection.update({_id: userId}, {
+                    $set: {
+                        fullName,
+                        caloriesPerDay
+                    }
+                }).then(result => this.retrieveUser(userId));
+            } else {
+                return errorService.createValidationError(validationResult);
             }
-        }).then(hashedPassword => {
-            let setObject = {fullName, caloriesPerDay};
-            if (hashedPassword) {
-                setObject.password = hashedPassword;
-            }
-            return userMongooseCollection.update({_id: userId}, {$set: setObject}).then(result => this.retrieveUser(userId));
         });
     }
 

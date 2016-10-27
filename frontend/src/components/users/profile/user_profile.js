@@ -27,7 +27,7 @@ class UserProfile extends React.Component {
                 publisher.emitEvent(events.USER_UPDATED, user);
                 this.goToMainPage();
             })
-            .catch(updateError => this.setState({updateError, isUpdating: false}));
+            .catch(error => this.setState({error, isUpdating: false}));
     }
 
     goToMainPage() {

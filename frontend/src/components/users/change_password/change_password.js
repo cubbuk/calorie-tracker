@@ -14,11 +14,11 @@ class ChangePassword extends React.Component {
     }
 
     onSubmit(passwordInfo = {}){
-        let {currentPassword, newPassword, newPasswordAgain} = passwordInfo;
+        let {currentPassword, newPassword} = passwordInfo;
         this.setState({isUpdating: true});
         usersService.changePassword(currentPassword, newPassword)
             .then(() => {
-                publisher.emitEvent(events.DISPLAY_MESSAGE, "Your password has changed");
+                publisher.emitEvent(events.DISPLAY_MESSAGE, {body: "Your password has changed"});
                 this.goToMainPage();
             })
             .catch(error => this.setState({error, isUpdating: false}));

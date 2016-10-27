@@ -69,13 +69,6 @@ class UserProfileForm extends React.Component {
                          value={fullName}
                          validationFunction={(fullName) => validate({fullName}, userConstraints.fullName(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "fullName")}/>
-            <CTFormInput name="password"
-                         label="Password"
-                         type="password"
-                         formSubmitted={formSubmitted}
-                         value={password}
-                         validationFunction={(password) => validate({password}, userConstraints.password(), {fullMessages: false})}
-                         onValueChange={this.onValueChange.bind(this, "password")}/>
             <CTFormInput name="caloriesPerDay"
                          label="Calories Per Day"
                          type="number"
