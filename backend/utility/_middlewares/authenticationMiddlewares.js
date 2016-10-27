@@ -5,8 +5,8 @@ const userSessionTokenService = require("../../components/users/_services/user_s
 class AuthenticationMiddleware {
 
     constructor() {
-        const LOGIN_URL = "api/login";
-        pathService.addPathToWhiteList(LOGIN_URL);
+        pathService.addPathToWhiteList("api/login");
+        pathService.addPathToWhiteList("api/signup");
     }
 
     authenticateRequests(req, res, next) {

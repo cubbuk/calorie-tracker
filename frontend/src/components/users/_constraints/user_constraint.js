@@ -36,7 +36,9 @@ class UserConstraints {
     }
 
     passwordAgainConstraint() {
-        return {newPasswordAgain: {equality: {attribute: "newPassword", message: "Entered passwords don't match"}}};
+        let constraint = {equality: {attribute: "newPassword", message: "Entered passwords don't match"}};
+        constraint = _.extend(constraint, this.createPasswordConstraint(true));
+        return {newPasswordAgain: constraint};
     }
 
     password(required) {
@@ -85,6 +87,10 @@ class UserConstraints {
             {currentPassword: this.createPasswordConstraint(true)},
             {newPassword: this.createPasswordConstraint(true)},
             this.passwordAgainConstraint());
+    }
+
+    signupConstraint() {
+        return _.extend({}, this.username(), this.fullName(), {newPassword: this.createPasswordConstraint(true)}, this.passwordAgainConstraint());
     }
 
 }
