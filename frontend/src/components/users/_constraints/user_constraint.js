@@ -20,18 +20,27 @@ class UserConstraints {
         }
     }
 
-    password() {
-        return {
-            password: {
-                presence: {message: "Please enter your password"},
-                length: {
-                    minimum: 6,
-                    tooShort: "Needs to have %{count} letters or more",
-                    maximum: 20,
-                    tooLong: "Needs to be less than or equal %{count} letters"
-                }
+    createPasswordConstraint(required) {
+        const constraint = {
+            length: {
+                minimum: 6,
+                tooShort: "Needs to have %{count} letters or more",
+                maximum: 20,
+                tooLong: "Needs to be less than or equal %{count} letters"
             }
+        };
+        if (required) {
+            constraint.presence = {message: "Please enter your password"};
         }
+        return constraint;
+    }
+
+    passwordAgainConstraint() {
+        return {newPasswordAgain: {equality: {attribute: "newPassword", message: "Entered passwords don't match"}}};
+    }
+
+    password(required) {
+        return {password: this.createPasswordConstraint(required)};
     }
 
     fullName() {
@@ -64,7 +73,18 @@ class UserConstraints {
     }
 
     userConstraints() {
-        return _.extend({}, this.roles(), this.username(), this.fullName(), this.caloriesPerDay());
+        return _.extend({}, this.password(), this.roles(), this.username(), this.fullName(), this.caloriesPerDay());
+    }
+
+    profileInfoConstraints() {
+        return _.extend({}, this.password(), this.username(), this.fullName(), this.caloriesPerDay());
+    }
+
+    passwordInfoConstraint() {
+        return _.extend({},
+            {currentPassword: this.createPasswordConstraint(true)},
+            {newPassword: this.createPasswordConstraint(true)},
+            this.passwordAgainConstraint());
     }
 
 }

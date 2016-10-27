@@ -16,7 +16,7 @@ class UsersService {
         if (query) {
             mongoQuery.fullName = {$regex: '^' + query, $options: "i"};
         }
-        if(userId){
+        if (userId) {
             mongoQuery._id = userId;
         }
         return mongoQuery;
@@ -24,6 +24,34 @@ class UsersService {
 
     retrieveUser(userId) {
         return userMongooseCollection.findOne({_id: userId}, {password: 0}).lean();
+    }
+
+    retrieveUserWithPassword(userId) {
+        return userMongooseCollection.findOne({_id: userId}).lean();
+    }
+
+    retrieveProfileInfo(userId) {
+        return userMongooseCollection.findOne({_id: userId}, {
+            _id: 0,
+            fullName: 1,
+            username: 1,
+            caloriesPerDay: 1
+        }).lean();
+    }
+
+    updateProfileInfo(userId, profileInfo) {
+        let {fullName, password, caloriesPerDay = 0} = profileInfo;
+        return Promise.try(() => {
+            if (password) {
+                return securityService.hashPassword(password);
+            }
+        }).then(hashedPassword => {
+            let setObject = {fullName, caloriesPerDay};
+            if (hashedPassword) {
+                setObject.password = hashedPassword;
+            }
+            return userMongooseCollection.update({_id: userId}, {$set: setObject}).then(result => this.retrieveUser(userId));
+        });
     }
 
     userIdsToUserMap(userIds = []) {
@@ -189,6 +217,42 @@ class UsersService {
                 });
             } else {
                 throw AuthenticationError;
+            }
+        });
+    }
+
+    checkPassword(userId, password) {
+        const invalidPasswordError = errorService.createCustomError(null, "Invalid password");
+        return this.retrieveUserWithPassword(userId).then(user => {
+            if (user) {
+                return securityService.checkPassword(password, user.password).then(function (result) {
+                    if (result) {
+                        return user;
+                    } else {
+                        throw invalidPasswordError
+                    }
+                });
+            } else {
+                throw invalidPasswordError;
+            }
+        });
+    }
+
+    updatePasswordOfUser(userId, plainPassword) {
+        return securityService.hashPassword(plainPassword).then((hashedPassword) => {
+            return userMongooseCollection.update({_id: userId}, {$set: {password: hashedPassword}});
+        })
+    }
+
+    changePassword(userId, password, newPassword) {
+        return Promise.try(() => {
+            const passwordValidation = this.validatePassword(newPassword);
+            if (passwordValidation) {
+                return errorService.createValidationError(passwordValidation);
+            } else {
+                return this.checkPassword(userId, password).then(() => {
+                    return this.updatePasswordOfUser(userId, newPassword);
+                });
             }
         });
     }

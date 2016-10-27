@@ -95,8 +95,8 @@ class CTFormInput extends React.Component {
         let subView = label;
         if (this.errorsCanBeDisplayed()) {
             if (validationMessages.length > 0) {
-                subView = validationMessages.map((validationMessage, index) => <span
-                    key={index}>{validationMessage}</span>);
+                subView = validationMessages.map((validationMessage, index) => <div
+                    key={index}>{validationMessage}</div>);
             }
         }
         return <ControlLabel bsClass={labelClass}>{subView}</ControlLabel>

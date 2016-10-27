@@ -9,15 +9,31 @@ class UsersService {
         return !validate(user, userConstraints.userConstraints());
     }
 
-    findUserById(userId){
-        return baseAPI.get(baseURL + "/byId/" + userId);
+    isValidProfileInfo(profileInfo) {
+        return !validate(profileInfo, userConstraints.profileInfoConstraints());
+    }
+
+    findUserById(userId) {
+        return baseAPI.get(baseURL + "/by-id/" + userId);
+    }
+
+    profileInfo() {
+        return baseAPI.get(baseURL + "/profile-info");
+    }
+
+    updateProfileInfo(profileInfo) {
+        return baseAPI.post(baseURL + "/profile-info", profileInfo);
+    }
+
+    changePassword(password, newPassword){
+        return baseAPI.post(baseURL + "/change-password", {password, newPassword});
     }
 
     searchUsers(params = {}) {
         return baseAPI.post(baseURL + "/search", params);
     }
 
-    retrieveUserList(params = {}){
+    retrieveUserList(params = {}) {
         return baseAPI.post(baseURL + "/list", params);
     }
 
@@ -37,7 +53,7 @@ class UsersService {
         let {fullName = "", username = ""} = user;
         let result = "";
         if (fullName) {
-            result +=  fullName + " ";
+            result += fullName + " ";
         }
         if (username) {
             result += "(" + username + ")";

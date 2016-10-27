@@ -7,7 +7,39 @@ const usersRoute = function (path, server) {
 
     const hasManagerRole = userRouteMiddleware.managerRoute.bind(userRouteMiddleware);
 
-    server.get(path + "/byId/:id", hasManagerRole, function (req, res, next) {
+    server.get(path + "/profile-info", function (req, res, next) {
+        usersService.retrieveProfileInfo(req.user._id).then(user => {
+            res.send(errorService.resultToStatusCode(user), user);
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        })
+    });
+
+    server.post(path + "/profile-info", function (req, res, next) {
+        usersService.updateProfileInfo(req.user._id, req.body).then(user => {
+            res.send(errorService.resultToStatusCode(user), user);
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        })
+    });
+
+    server.post(path + "/change-password", function (req, res, next) {
+        let {body = {}} = req;
+        let {password, newPassword} = body;
+        usersService.changePassword(req.user._id, password, newPassword).then(user => {
+            res.send(errorService.resultToStatusCode(user), user);
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        })
+    });
+
+    server.get(path + "/by-id/:id", hasManagerRole, function (req, res, next) {
         usersService.retrieveUser(req.params.id).then(user => {
             res.send(errorService.resultToStatusCode(user), user);
             next();

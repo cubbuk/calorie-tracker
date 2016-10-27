@@ -1,5 +1,5 @@
 import React, {PropTypes} from "react";
-import {MenuItem, Navbar, Nav, NavDropdown} from "react-bootstrap";
+import {Glyphicon, MenuItem, Navbar, Nav, NavDropdown} from "react-bootstrap";
 import IndexNavbarItem from "../index_navbar_item/index_navbar_item";
 import loginService from "../../../login/_services/login_service";
 import appState from "../../../../utility/app_state";
@@ -39,8 +39,9 @@ class IndexNavbar extends React.Component {
                 </Nav>}
                 <Nav pullRight>
                     {user && <NavDropdown eventKey={3} title={fullName} id="basic-nav-dropdown">
-                        <MenuItem eventKey={3.1}><Link to="settings">Settings</Link></MenuItem>
-                        <MenuItem eventKey={3.2} onClick={this.onLogout.bind(this)}>Logout</MenuItem>
+                        <MenuItem eventKey={3.1}><Link to="users/profile"><Glyphicon glyph="user"/>&nbsp;Settings</Link></MenuItem>
+                        <MenuItem eventKey={3.1}><Link to="users/change-password"><Glyphicon glyph="lock"/>&nbsp;Change Password</Link></MenuItem>
+                        <MenuItem eventKey={3.2} onClick={this.onLogout.bind(this)}><Glyphicon glyph="log-out"/>&nbsp;Logout</MenuItem>
                     </NavDropdown>}
                 </Nav>
             </Navbar.Collapse>
