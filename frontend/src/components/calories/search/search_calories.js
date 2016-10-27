@@ -219,7 +219,10 @@ class SearchCalories extends React.Component {
                 searchParams,
                 pageNumber
             })
-        }).catch(error => this.setState({error, isSearching: false}));
+        }).catch(error => {
+            clearTimeout(this.searchTimeout);
+            this.setState({error, isSearching: false})
+        });
     }
 
     selectPage(pageNumber) {

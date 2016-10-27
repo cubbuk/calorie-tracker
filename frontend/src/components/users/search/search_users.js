@@ -22,14 +22,29 @@ class SearchUsers extends React.Component {
             .catch(error => this.setState({error, loaded: true}));
     }
 
+    componentWillUnmount() {
+        clearTimeout(this.searchTimeout);
+    }
+
     searchUsers(params = {}) {
         params.searchParams = params.searchParams || this.state.searchParams;
         params.pageNumber = params.pageNumber || this.state.pageNumber;
         params.resultsPerPage = RESULTS_PER_PAGE;
+        this.searchTimeout = setTimeout(() => this.setState({isSearching: true}), 500); //if search does not finish in given period, show an indicator
         return usersService.searchUsers(params)
             .then((results = {records: [], count: 0}) => {
+                clearTimeout(this.searchTimeout);
                 let {searchParams = {}, pageNumber = 1} = params;
-                return this.setState({searchParams, pageNumber, users: results.records, totalCount: results.count})
+                return this.setState({
+                    searchParams,
+                    pageNumber,
+                    users: results.records,
+                    totalCount: results.count,
+                    isSearching: false
+                });
+            }).catch(error => {
+                clearTimeout(this.searchTimeout);
+                this.setState({error, isSearching: false})
             });
     }
 
