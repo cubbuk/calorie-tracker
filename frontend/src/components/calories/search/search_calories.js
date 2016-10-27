@@ -2,13 +2,13 @@ import _ from "lodash";
 import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
+import {Button, Col, Glyphicon, Label, Modal, Panel, Row, Table} from "react-bootstrap";
 import {MultiMonthView} from "react-date-picker";
 import {CTAlert, CTConfirmModal, CTError, CTTimeSlider, CTPaginator} from "../../../utility/components/_ct_components";
 import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
 import SelectUser from "../../users/_components/select_user/select_user";
+import UserRoleLabels from "../../users/_components/user_role_labels/user_role_labels";
 import calorieRecordsService from "../_services/calorie_records_service";
-import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
 import appState from "../../../utility/app_state";
 import {RESULTS_PER_PAGE} from "../../../utility/constants/ct_constants";
@@ -67,7 +67,13 @@ class SearchCalories extends React.Component {
     renderCalorieRecord(calorieRecord = {}) {
         let {_id, description, calorieAmount, recordDate, recordOwner = {}} = calorieRecord;
         return <tr key={_id}>
-            {this.hasAdminRole && <td>{usersService.toFullNameWithUsername(recordOwner)}</td>}
+            {this.hasAdminRole && <td>
+                <div>{recordOwner.fullName}</div>
+                <div>
+                    <small className="text-muted">{recordOwner.username}</small>
+                </div>
+                <div><UserRoleLabels roles={recordOwner.roles || []}/></div>
+            </td>}
             <td>{description}</td>
             <td>{calorieAmount}</td>
             <td>{moment(recordDate).format("DD/MM/YYYY HH:mm")}</td>

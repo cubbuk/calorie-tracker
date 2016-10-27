@@ -1,14 +1,13 @@
-import Promise from "bluebird";
 import _ from "lodash";
 import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Glyphicon, Label, Modal, Panel, Row, Table} from "react-bootstrap";
+import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
 import {CTAlert, CTConfirmModal, CTError, CTPaginator} from "../../../utility/components/_ct_components";
 import SelectUser from "../_components/select_user/select_user";
+import UserRoleLabels from "../_components/user_role_labels/user_role_labels";
 import UserForm from "../_components/user_form/user_form";
 import usersService from "../_services/users_service";
-import userRoleService from "../_services/user_role_service";
 import {RESULTS_PER_PAGE} from "../../../utility/constants/ct_constants";
 
 class SearchUsers extends React.Component {
@@ -72,8 +71,7 @@ class SearchUsers extends React.Component {
         return <tr key={_id}>
             <td>
                 <div>{username}</div>
-                <div>{roles.map((role, key) => <Label bsStyle="primary" key={key}
-                                                      className="margin-right-5">{userRoleService.userRoleToLabel(role)}</Label>)}</div>
+                <div><UserRoleLabels roles={roles}/></div>
             </td>
             <td>{fullName}</td>
             <td>{caloriesPerDay}</td>
