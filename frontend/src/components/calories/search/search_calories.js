@@ -8,6 +8,7 @@ import {CTAlert, CTConfirmModal, CTError, CTTimeSlider, CTPaginator} from "../..
 import CalorieRecordForm from "../_components/calorie_record_form/calorie_record_form";
 import SelectUser from "../../users/_components/select_user/select_user";
 import UserRoleLabels from "../../users/_components/user_role_labels/user_role_labels";
+import DailyCalorieRecordsSummaryTable from "../_components/daily_calorie_records_summary_table/daily_calorie_records_summary_table";
 import calorieRecordsService from "../_services/calorie_records_service";
 import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
@@ -255,33 +256,16 @@ class SearchCalories extends React.Component {
             const onCloseDailyCalorieRecordSummaries = this.onCloseDailyCalorieRecordSummaries.bind(this);
             let {preparingDailySummaries, dailySummaryRecordsError, dailyCalorieRecordSummaries = []} = this.state;
             let user = appState.getUser();
-            let {caloriesPerDay: goal = 0} = user;
+            let {caloriesPerDay: goalCalories = 0} = user;
             view = <Modal show onHide={onCloseDailyCalorieRecordSummaries}>
                 <Modal.Header closeButton>
                     <Modal.Title>Daily Calorie Record Summaries</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <CTError error={dailySummaryRecordsError}/>
-                    <h3>{"Daily Goal: " + goal}</h3>
                     <Loader loaded={!preparingDailySummaries}>
-                        <CTAlert show={dailyCalorieRecordSummaries.length === 0}>There isn't any record to display</CTAlert>
-                        {dailyCalorieRecordSummaries.length > 0 && <Table bordered responsive>
-                            <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Total Calories</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {dailyCalorieRecordSummaries.map((summaryRecord, index) => {
-                                let goalAchieved = (summaryRecord.totalAmount || 0) >= goal;
-                                return <tr key={index} className={goalAchieved ? "success" : "danger"}>
-                                    <td>{moment(summaryRecord.date).format("DD/MM/YYYY")}</td>
-                                    <td>{(summaryRecord.totalAmount || 0).toFixed(2)}</td>
-                                </tr>
-                            })}
-                            </tbody>
-                        </Table>}
+                        <DailyCalorieRecordsSummaryTable goalCalories={goalCalories}
+                                                         dailyCalorieRecordSummaries={dailyCalorieRecordSummaries}/>
                     </Loader>
                 </Modal.Body>
             </Modal>

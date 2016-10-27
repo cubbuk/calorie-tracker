@@ -43,7 +43,6 @@ const usersRoute = function (path, server) {
     server.post(path + "/daily-calory-record-summaries", function (req, res, next) {
         let {body = {}} = req;
         let {searchParams = {}} = body;
-        console.log(body);
         searchParams.recordOwnerId = req.user._id;
         calorieRecordsService.dailyCalorieRecordSummaries(searchParams).then(results => {
             res.send(errorService.resultToStatusCode(results), results);
