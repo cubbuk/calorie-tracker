@@ -13,12 +13,12 @@ class UsersService {
         return baseAPI.get(baseURL + "/byId/" + userId);
     }
 
-    searchUsers(searchParams = {}) {
-        return baseAPI.post(baseURL + "/search", {searchParams});
+    searchUsers(params = {}) {
+        return baseAPI.post(baseURL + "/search", params);
     }
 
-    retrieveUserList(searchParams = {}){
-        return baseAPI.post(baseURL + "/list", {searchParams});
+    retrieveUserList(params = {}){
+        return baseAPI.post(baseURL + "/list", params);
     }
 
     addNewUser(user) {

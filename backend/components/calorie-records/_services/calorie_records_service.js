@@ -8,7 +8,7 @@ const errorService = require("../../../utility/_services/error_service");
 
 class CalorieRecordsService {
 
-    searchParamsToMongoParams(searchParams = {}) {
+    searchParamsToMongoQuery(searchParams = {}) {
         let mongoParams = {};
         if (searchParams.recordOwnerId) {
             mongoParams.recordOwnerId = searchParams.recordOwnerId;
@@ -42,12 +42,12 @@ class CalorieRecordsService {
     }
 
     countCalorieRecords(searchParams = {}) {
-        return calorieRecordMongooseCollection.count(this.searchParamsToMongoParams(searchParams));
+        return calorieRecordMongooseCollection.count(this.searchParamsToMongoQuery(searchParams));
     }
 
     searchCalorieRecords(params = {}) {
         let {searchParams = {}, orderParams = {recordDate: -1}, pageNumber = 1, resultsPerPage = 10} = params;
-        return calorieRecordMongooseCollection.find(this.searchParamsToMongoParams(searchParams)).sort(orderParams).skip((pageNumber - 1) * resultsPerPage).limit(resultsPerPage).lean();
+        return calorieRecordMongooseCollection.find(this.searchParamsToMongoQuery(searchParams)).sort(orderParams).skip((pageNumber - 1) * resultsPerPage).limit(resultsPerPage).lean();
     }
 
     recordTimeToMinutes(date) {

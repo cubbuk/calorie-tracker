@@ -11,10 +11,13 @@ const userSessionTokenService = require("./user_session_token_service");
 class UsersService {
 
     searchParamsToMongoQuery(searchParams = {}) {
-        let {query} = searchParams;
+        let {query, userId} = searchParams;
         let mongoQuery = {};
         if (query) {
             mongoQuery.fullName = {$regex: '^' + query, $options: "i"};
+        }
+        if(userId){
+            mongoQuery._id = userId;
         }
         return mongoQuery;
     }
@@ -55,9 +58,13 @@ class UsersService {
         return userMongooseCollection.findOne({username: username}).lean();
     }
 
+    countUsers(searchParams = {}) {
+        return userMongooseCollection.count(this.searchParamsToMongoQuery(searchParams));
+    }
+
     searchUsers(params = {}) {
-        let {searchParams = {}} = params;
-        return userMongooseCollection.find(this.searchParamsToMongoQuery(searchParams)).lean();
+        let {searchParams = {}, orderParams = {recordDate: -1}, pageNumber = 1, resultsPerPage = 10} = params;
+        return userMongooseCollection.find(this.searchParamsToMongoQuery(searchParams)).sort(orderParams).skip((pageNumber - 1) * resultsPerPage).limit(resultsPerPage).lean();
     }
 
     updateCaloriesPerDayOfUser(userId, caloriesPerDay, savedBy) {

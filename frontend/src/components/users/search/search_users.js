@@ -1,11 +1,14 @@
+import Promise from "bluebird";
 import _ from "lodash";
 import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Modal, Row, Table} from "react-bootstrap";
-import {CTAlert, CTConfirmModal, CTError} from "../../../utility/components/_ct_components";
+import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
+import {CTAlert, CTConfirmModal, CTError, CTPaginator} from "../../../utility/components/_ct_components";
+import SelectUser from "../_components/select_user/select_user";
 import UserForm from "../_components/user_form/user_form";
 import usersService from "../_services/users_service";
+import {RESULTS_PER_PAGE} from "../../../utility/constants/ct_constants";
 
 class SearchUsers extends React.Component {
     constructor(props, context, ...args) {
@@ -14,11 +17,20 @@ class SearchUsers extends React.Component {
     }
 
     componentWillMount() {
-        usersService.searchUsers().then((results = {records: [], count: 0}) => this.setState({
-            users: results.records,
-            totalCount: results.count,
-            loaded: true
-        })).catch(error => this.setState({error, loaded: true}));
+        this.searchUsers()
+            .then(() => this.setState({loaded: true}))
+            .catch(error => this.setState({error, loaded: true}));
+    }
+
+    searchUsers(params = {}) {
+        params.searchParams = params.searchParams || this.state.searchParams;
+        params.pageNumber = params.pageNumber || this.state.pageNumber;
+        params.resultsPerPage = RESULTS_PER_PAGE;
+        return usersService.searchUsers(params)
+            .then((results = {records: [], count: 0}) => {
+                let {searchParams = {}, pageNumber = 1} = params;
+                return this.setState({searchParams, pageNumber, users: results.records, totalCount: results.count})
+            });
     }
 
     selectUserToBeUpdated(user) {
@@ -29,11 +41,9 @@ class SearchUsers extends React.Component {
 
     updateUser(user) {
         this.setState({isUpdating: true});
-        usersService.updateUser(user).then(() => usersService.searchUsers())
-            .then(results => {
+        usersService.updateUser(user).then(() => this.searchUsers())
+            .then(() => {
                 this.setState({
-                    users: results.records,
-                    totalCount: results.count,
                     updateError: undefined,
                     isUpdating: false,
                     userToBeUpdated: undefined
@@ -93,11 +103,9 @@ class SearchUsers extends React.Component {
     addNewUser(newUser) {
         this.setState({isAdding: true});
         usersService.addNewUser(newUser)
-            .then(() => usersService.searchUsers())
-            .then((results) => {
+            .then(() => this.searchUsers())
+            .then(() => {
                 this.setState({
-                    users: results.records,
-                    totalCount: results.count,
                     addError: undefined,
                     isAdding: false,
                     showNewUserModal: false
@@ -135,21 +143,39 @@ class SearchUsers extends React.Component {
 
     deleteRecord(userToBeDeleted) {
         this.setState({isDeleting: true});
-        usersService.deleteUser(userToBeDeleted._id).then(() => usersService.searchUsers()).then((results) => {
-            this.setState({
-                users: results.records,
-                totalCount: results.count,
-                deleteError: undefined,
-                isDeleting: false,
-                userToBeDeleted: undefined
-            });
-        }).catch(deleteError => this.setState({deleteError, isDeleting: false}));
+        usersService.deleteUser(userToBeDeleted._id)
+            .then(() => this.searchUsers())
+            .then(() => {
+                this.setState({
+                    deleteError: undefined,
+                    isDeleting: false,
+                    userToBeDeleted: undefined
+                });
+            }).catch(deleteError => this.setState({deleteError, isDeleting: false}));
+    }
+
+    selectPage(pageNumber) {
+        this.searchUsers({pageNumber});
+    }
+
+    selectUser(userId) {
+        let {searchParams = {}} = this.state;
+        searchParams.userId = userId;
+        this.searchUsers({searchParams, pageNumber: 1});
     }
 
     render() {
-        let {users = [], userToBeUpdated, userToBeDeleted, loaded, showNewUserModal, isUpdating, isAdding, isDeleting} = this.state;
-        let {error, deleteError, addError, updateError} = this.state;
+        let {users = [], userToBeUpdated, userToBeDeleted, loaded, showNewUserModal, isUpdating, isAdding, isDeleting, totalCount = 0} = this.state;
+        let {error, deleteError, addError, updateError, isSearching} = this.state;
+        let {searchParams = {}, pageNumber = 1} = this.state;
         let cancelDeletionOfUserRecord = this.cancelDeletionOfUserRecord.bind(this);
+        const paginatorComponent = <CTPaginator bsSize="medium"
+                                                style={{marginTop: "0px"}}
+                                                total={totalCount}
+                                                activePage={pageNumber}
+                                                resultsPerPage={RESULTS_PER_PAGE}
+                                                onSelect={this.selectPage.bind(this)}/>;
+
         return <div>
             <CTError error={error}/>
             <Row className="margin-bottom-20 margin-top-20">
@@ -159,6 +185,33 @@ class SearchUsers extends React.Component {
                         user</Button>
                 </Col>
             </Row>
+            <Panel bsStyle="primary" header={<Row>
+                <Col xs={12}>
+                    <Button bsStyle="primary"
+                            className="margin-right-10"
+                            onClick={() => this.setState({addError: undefined, showNewUserModal: true})}>
+                        Add new user</Button>
+                    <Button onClick={this.searchUsers.bind(this, {searchParams, pageNumber})}>Search&nbsp;<Glyphicon
+                        glyph="search"/></Button>
+                    {isSearching && <img width={35} className="margin-left-10"
+                                         src={require("../../../assets/images/loading.gif")}/>}
+                </Col>
+            </Row>}>
+                <Row>
+                    <Col xs={12}>
+                        <Row className="margin-bottom-20">
+                            <Col xs={12} sm={12} md={3}>
+                                <SelectUser
+                                    autoBlur
+                                    autoload={false}
+                                    onSelect={this.selectUser.bind(this)}
+                                    placeholder="Search for user"
+                                    value={searchParams.userId}/>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+            </Panel>
             <CTConfirmModal disabled={isDeleting}
                             show={!!userToBeDeleted}
                             onCancel={cancelDeletionOfUserRecord}
@@ -189,6 +242,7 @@ class SearchUsers extends React.Component {
                     {users.map(this.renderUser.bind(this))}
                     </tbody>
                 </Table>}
+                {paginatorComponent}
             </Loader>
         </div>;
     }

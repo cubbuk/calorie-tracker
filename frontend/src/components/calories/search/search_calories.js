@@ -11,8 +11,7 @@ import calorieRecordsService from "../_services/calorie_records_service";
 import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
 import appState from "../../../utility/app_state";
-
-const RESULTS_PER_PAGE = 10;
+import {RESULTS_PER_PAGE} from "../../../utility/constants/ct_constants";
 
 class SearchCalories extends React.Component {
     constructor(props, context, ...args) {

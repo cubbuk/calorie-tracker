@@ -1,3 +1,4 @@
+const Promise = require("bluebird");
 const usersService = require("../../components/users/_services/users_service");
 const userRouteMiddleware = require("./user_route_middlewares");
 const errorService = require("../../utility/_services/error_service");
@@ -18,8 +19,11 @@ const usersRoute = function (path, server) {
 
     server.post(path + "/search", hasManagerRole, function (req, res, next) {
         let {body = {}} = req;
-        usersService.searchUsers(body).then(users => {
-            res.send(errorService.resultToStatusCode(users), {records: users, count: users.length});
+        let {searchParams = {}} = body;
+        const searchPromise = usersService.searchUsers(body);
+        const countPromise = usersService.countUsers(searchParams);
+        Promise.all([searchPromise, countPromise]).then(results => {
+            res.send(errorService.resultToStatusCode(results[0]), {records: results[0], count: results[1]});
             next();
         }).catch(error => {
             res.send(500, error);

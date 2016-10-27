@@ -32,7 +32,7 @@ class SelectUser extends React.Component {
     getOptions(input, callback) {
         clearTimeout(this.searchTimeout);
         this.searchTimeout = setTimeout(() => {
-            return usersService.retrieveUserList({query: input}).then(results => {
+            return usersService.retrieveUserList({searchParams: {query: input}}).then(results => {
                 callback(null, {
                     options: results.map(result => ({value: result._id, label: result.fullName})),
                     complete: true
