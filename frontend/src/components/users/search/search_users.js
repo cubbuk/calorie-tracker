@@ -198,19 +198,11 @@ class SearchUsers extends React.Component {
 
         return <div>
             <CTError error={error}/>
-            <Row className="margin-bottom-20 margin-top-20">
-                <Col xs={12}>
-                    <Button bsStyle="primary"
-                            onClick={() => this.setState({addError: undefined, showNewUserModal: true})}>Add new
-                        user</Button>
-                </Col>
-            </Row>
             <Panel bsStyle="primary" header={<Row>
                 <Col xs={12}>
-                    <Button bsStyle="primary"
-                            className="margin-right-10"
+                    <Button className="margin-right-10"
                             onClick={() => this.setState({addError: undefined, showNewUserModal: true})}>
-                        Add new user</Button>
+                        Add new user&nbsp;<Glyphicon glyph="plus"/></Button>
                     <Button onClick={this.searchUsers.bind(this, {searchParams, pageNumber})}>Search&nbsp;<Glyphicon
                         glyph="search"/></Button>
                     {isSearching && <img width={35} className="margin-left-10"
