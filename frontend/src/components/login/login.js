@@ -3,7 +3,7 @@ import React, {PropTypes} from "react";
 import {Link} from "react-router";
 import {Button, Col, Panel, Row} from "react-bootstrap";
 import {CTError, CTFormInput} from "utility/components/_ct_components";
-import IndexNavbar from "components/index/_components/index_navbar/index_navbar";
+import WelcomeContainer from "../index/_components/welcome_container/welcome_container";
 import loginConstraints from "./_constraints/login_constraints";
 import loginService from "./_services/login_service";
 
@@ -45,8 +45,7 @@ class Login extends React.Component {
 
     render() {
         let {error, formSubmitted, username, password} = this.state;
-        return <div>
-            <IndexNavbar/>
+        return <WelcomeContainer>
             <Row>
                 <Col xs={12} md={6} mdOffset={3}>
                     <Panel header="Login" bsStyle="primary" footer={this.renderFooter()}>
@@ -80,7 +79,7 @@ class Login extends React.Component {
                     </Panel>
                 </Col>
             </Row>
-        </div>;
+        </WelcomeContainer>;
     }
 }
 

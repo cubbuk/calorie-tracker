@@ -9,7 +9,7 @@ class IndexFooter extends React.Component {
     render() {
         return <footer className="footer">
             <div className="container">
-                <p className="text-muted text-white">
+                <p className="text-white text-center no-margin-bottom">
                     <small>&copy; 2016 Calories Tracker</small>
                 </p>
             </div>

@@ -2,9 +2,9 @@ import Promise from "bluebird";
 import validate from "validate.js";
 import React, {PropTypes} from "react";
 import {Link} from "react-router";
-import {Button, Col, Row, Panel} from "react-bootstrap";
+import {Button, Col, PageHeader, Row, Panel} from "react-bootstrap";
 import {CTError, CTFormInput} from "utility/components/_ct_components";
-import IndexNavbar from "components/index/_components/index_navbar/index_navbar";
+import WelcomeContainer from "../index/_components/welcome_container/welcome_container";
 import userConstraints from "../users/_constraints/user_constraint.js";
 import signupService from "./_services/signup_service";
 import appState from "../../utility/app_state";
@@ -56,8 +56,7 @@ class Signup extends React.Component {
         let {error, formSubmitted, signupInfo = {}} = this.state;
         let {username, fullName, newPassword, newPasswordAgain} = signupInfo;
         const onSignUp = this.onSignup.bind(this, signupInfo);
-        return <div>
-            <IndexNavbar/>
+        return <WelcomeContainer>
             <Row>
                 <Col xs={12} md={6} mdOffset={3}>
                     <Panel header="Signup" bsStyle="primary" footer={this.renderFooter()}>
@@ -101,7 +100,7 @@ class Signup extends React.Component {
                     </Panel>
                 </Col>
             </Row>
-        </div>
+        </WelcomeContainer>;
     }
 }
 
