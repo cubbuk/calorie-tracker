@@ -7,6 +7,7 @@ const userMongooseCollection = require("../_mongoose/user_mongoose_collection");
 const errorService = require("../../../utility/_services/error_service");
 const securityService = require("../../../utility/_services/security_service");
 const userSessionTokenService = require("./user_session_token_service");
+const userRoleService = require("./user_role_service");
 
 class UsersService {
 
@@ -42,7 +43,10 @@ class UsersService {
     updateProfileInfo(userId, profileInfo) {
         return Promise.try(() => {
             let {fullName, caloriesPerDay} = profileInfo;
-            let validationResult = validate({fullName, caloriesPerDay}, userConstraint.profileUpdateConstraint(), {fullMessages: false});
+            let validationResult = validate({
+                fullName,
+                caloriesPerDay
+            }, userConstraint.profileUpdateConstraint(), {fullMessages: false});
             if (!validationResult) {
                 return userMongooseCollection.update({_id: userId}, {
                     $set: {
@@ -140,6 +144,20 @@ class UsersService {
                 }
             } else {
                 return errorService.createValidationError(validationResult);
+            }
+        });
+    }
+
+    signupUser(user = {}) {
+        user.caloriesPerDay = 2000;
+        user.roles = [userRoleService.getUserRoleMap().USER];
+        return this.addNewUser(user).then(result => {
+            if (errorService.isValidationError(result)) {
+                return result;
+            } else if (errorService.isUniqueKeyConstraintError(result)) {
+                return errorService.createCustomError(result, "This username is used by someone else");
+            } else {
+                return this.authenticateUser(user.username, user.password);
             }
         });
     }

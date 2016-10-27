@@ -23,19 +23,10 @@ const authenticationRoute = function (path, server) {
         }
     );
 
-    server.post(path + "/signup", (req, res, next) => {
+    server.post(path + "/signup", (req, res) => {
             let {body = {}} = req;
-            body.caloriesPerDay = 2000;
-            usersService.addNewUser(body).then(result => {
-                if (errorService.isValidationError(result)) {
-                    res.send(errorService.resultToStatusCode(result), result);
-                } else if (errorService.isUniqueKeyConstraintError(result)) {
-                    res.send(errorService.resultToStatusCode(result), "This username is used by someone else");
-                } else {
-                    return usersService.authenticateUser(body.username, body.password).then(result => {
-                        res.send(200, result);
-                    });
-                }
+            usersService.signupUser(body).then(result => {
+                res.send(200, result);
             }).catch(error => {
                 res.send(500, error);
             });
