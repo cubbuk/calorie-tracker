@@ -50,6 +50,26 @@ class CalorieRecordsService {
         return calorieRecordMongooseCollection.find(this.searchParamsToMongoQuery(searchParams)).sort(orderParams).skip((pageNumber - 1) * resultsPerPage).limit(resultsPerPage).lean();
     }
 
+    dailyCalorieRecordSummaries(searchParams = {}) {
+        let aggregationOperations = [];
+        aggregationOperations.push({$match: this.searchParamsToMongoQuery(searchParams)});
+        aggregationOperations.push({
+            $project: {
+                calorieAmount: "$calorieAmount",
+                yearMonthDay: {$dateToString: {format: "%Y-%m-%d", date: "$recordDate"}}
+            }
+        });
+        aggregationOperations.push({$group: {_id: "$yearMonthDay", totalAmount: {$sum: "$calorieAmount"}}});
+        aggregationOperations.push({$sort: {_id: -1}});
+        return calorieRecordMongooseCollection.aggregate(aggregationOperations).then(results => {
+            return results.map(result => {
+                result.date = moment(result._id, "YYYYMMDD").toDate();
+                delete result._id;
+                return result;
+            });
+        });
+    }
+
     recordTimeToMinutes(date) {
         const momentDate = moment(date);
         return momentDate.hours() * 60 + momentDate.minutes();

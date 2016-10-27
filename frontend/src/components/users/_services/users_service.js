@@ -49,17 +49,10 @@ class UsersService {
         return baseAPI.delete(baseURL + "/delete/" + userId);
     }
 
-    toFullNameWithUsername(user = {}) {
-        let {fullName = "", username = ""} = user;
-        let result = "";
-        if (fullName) {
-            result += fullName + " ";
-        }
-        if (username) {
-            result += "(" + username + ")";
-        }
-        return result.trim();
+    dailyCalorieRecordSummaries(searchParams){
+        return baseAPI.post(baseURL + "/daily-calory-record-summaries", {searchParams});
     }
+
 }
 
 export default new UsersService();

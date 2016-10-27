@@ -9,6 +9,7 @@ import CalorieRecordForm from "../_components/calorie_record_form/calorie_record
 import SelectUser from "../../users/_components/select_user/select_user";
 import UserRoleLabels from "../../users/_components/user_role_labels/user_role_labels";
 import calorieRecordsService from "../_services/calorie_records_service";
+import usersService from "../../users/_services/users_service";
 import userRoleService from "../../users/_services/user_role_service";
 import appState from "../../../utility/app_state";
 import {RESULTS_PER_PAGE} from "../../../utility/constants/ct_constants";
@@ -237,9 +238,60 @@ class SearchCalories extends React.Component {
         this.search(searchParams, pageNumber);
     }
 
+    retrieveDailySummaries(searchParams = {}) {
+        this.setState({preparingDailySummaries: true, showDailyCalorieRecordSummaries: true});
+        usersService.dailyCalorieRecordSummaries(searchParams).then((dailyCalorieRecordSummaries) => {
+            this.setState({dailyCalorieRecordSummaries, preparingDailySummaries: false})
+        }).catch(dailySummaryRecordsError => this.setState({dailySummaryRecordsError, preparingDailySummaries: false}))
+    }
+
+    onCloseDailyCalorieRecordSummaries() {
+        this.setState({showDailyCalorieRecordSummaries: false});
+    }
+
+    renderDailyCalorieRecordSummariesModal(showDailyCalorieRecordSummaries) {
+        let view = null;
+        if (showDailyCalorieRecordSummaries) {
+            const onCloseDailyCalorieRecordSummaries = this.onCloseDailyCalorieRecordSummaries.bind(this);
+            let {preparingDailySummaries, dailySummaryRecordsError, dailyCalorieRecordSummaries = []} = this.state;
+            let user = appState.getUser();
+            let {caloriesPerDay: goal = 0} = user;
+            view = <Modal show onHide={onCloseDailyCalorieRecordSummaries}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Daily Calorie Record Summaries</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <CTError error={dailySummaryRecordsError}/>
+                    <h3>{"Daily Goal: " + goal}</h3>
+                    <Loader loaded={!preparingDailySummaries}>
+                        <CTAlert show={dailyCalorieRecordSummaries.length === 0}>There isn't any record to display</CTAlert>
+                        {dailyCalorieRecordSummaries.length > 0 && <Table bordered responsive>
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Total Calories</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {dailyCalorieRecordSummaries.map((summaryRecord, index) => {
+                                let goalAchieved = (summaryRecord.totalAmount || 0) >= goal;
+                                return <tr key={index} className={goalAchieved ? "success" : "danger"}>
+                                    <td>{moment(summaryRecord.date).format("DD/MM/YYYY")}</td>
+                                    <td>{(summaryRecord.totalAmount || 0).toFixed(2)}</td>
+                                </tr>
+                            })}
+                            </tbody>
+                        </Table>}
+                    </Loader>
+                </Modal.Body>
+            </Modal>
+        }
+        return view;
+    }
+
     render() {
         let {calorieRecords = [], totalCount = calorieRecords.length, calorieRecordToBeUpdated, calorieRecordToBeDeleted, loaded, showsearchParams, showNewCalorieRecordModal, isUpdating, isAdding, isDeleting} = this.state;
-        let {error, deleteError, addError, updateError, searchParams = {}, isSearching, pageNumber = 1} = this.state;
+        let {error, deleteError, addError, updateError, searchParams = {}, isSearching, pageNumber = 1, showDailyCalorieRecordSummaries} = this.state;
         let cancelDeletionOfCaleryRecord = this.cancelDeletionOfCaleryRecord.bind(this);
         const now = new Date();
         const paginatorComponent = <CTPaginator bsSize="medium"
@@ -268,8 +320,13 @@ class SearchCalories extends React.Component {
                         </Button>
                         <Button className="margin-right-10"
                                 onClick={() => this.setState({showsearchParams: !showsearchParams})}>
-                            {showsearchParams ? "Hide searchParams" : "Show searchParams"}
+                            {showsearchParams ? "Hide Filters" : "Show Filters"}
                             &nbsp;<Glyphicon glyph="filter"/>
+                        </Button>
+                        <Button className="margin-right-10"
+                                disabled={calorieRecords.length === 0}
+                                onClick={this.retrieveDailySummaries.bind(this, searchParams)}>
+                            Daily Summaries&nbsp;<Glyphicon glyph="list"/>
                         </Button>
                         <Button onClick={this.search.bind(this, searchParams, pageNumber)}>Search&nbsp;<Glyphicon
                             glyph="search"/></Button>
@@ -308,6 +365,7 @@ class SearchCalories extends React.Component {
                 </Panel>
                 {this.renderNewCalorieRecordModal(showNewCalorieRecordModal, isAdding, addError)}
                 {this.renderCalorieUpdateModal(calorieRecordToBeUpdated, isUpdating, updateError)}
+                {this.renderDailyCalorieRecordSummariesModal(showDailyCalorieRecordSummaries)}
                 <CTAlert show={calorieRecords.length === 0}>
                     There isn't any record.
                 </CTAlert>

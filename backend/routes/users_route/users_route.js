@@ -1,5 +1,6 @@
 const Promise = require("bluebird");
 const usersService = require("../../components/users/_services/users_service");
+const calorieRecordsService = require("../../components/calorie-records/_services/calorie_records_service");
 const userRouteMiddleware = require("./user_route_middlewares");
 const errorService = require("../../utility/_services/error_service");
 
@@ -32,6 +33,20 @@ const usersRoute = function (path, server) {
         let {password, newPassword} = body;
         usersService.changePassword(req.user._id, password, newPassword).then(user => {
             res.send(errorService.resultToStatusCode(user), user);
+            next();
+        }).catch(error => {
+            res.send(500, error);
+            next();
+        })
+    });
+
+    server.post(path + "/daily-calory-record-summaries", function (req, res, next) {
+        let {body = {}} = req;
+        let {searchParams = {}} = body;
+        console.log(body);
+        searchParams.recordOwnerId = req.user._id;
+        calorieRecordsService.dailyCalorieRecordSummaries(searchParams).then(results => {
+            res.send(errorService.resultToStatusCode(results), results);
             next();
         }).catch(error => {
             res.send(500, error);
