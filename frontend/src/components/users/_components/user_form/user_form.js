@@ -2,6 +2,7 @@ import validate from "validate.js";
 import React, {PropTypes} from "react";
 import {Button} from "react-bootstrap";
 import {CTFormInput} from "../../../../utility/components/_ct_components";
+import SelectRoles from "../select_roles/select_roles";
 import usersService from "../../_services/users_service";
 import userConstraints from "../../_constraints/user_constraint";
 import utilityService from "../../../../utility/services/utility_service";
@@ -51,7 +52,7 @@ class UserForm extends React.Component {
     render() {
         let {disabled, isUpdate} = this.props;
         let {user = {}, formSubmitted} = this.state;
-        let {username, fullName, password, caloriesPerDay} = user;
+        let {username, fullName, password, caloriesPerDay, roles = []} = user;
         let onSaveClicked = this.onSaveClicked.bind(this, user);
         return <form onSubmit={onSaveClicked} disabled={disabled}
                      onKeyPress={this.onKeyPress.bind(this, user)}>
@@ -76,6 +77,13 @@ class UserForm extends React.Component {
                          value={password}
                          validationFunction={(password) => validate({password}, userConstraints.password(), {fullMessages: false})}
                          onValueChange={this.onValueChange.bind(this, "password")}/>
+            <CTFormInput label="Roles"
+                         value={roles}
+                         formSubmitted={formSubmitted}
+                         validationFunction={(roles) => validate({roles}, userConstraints.roles(), {fullMessages: false})}>
+                <SelectRoles placeholder="Select roles" value={roles}
+                             onSelect={this.onValueChange.bind(this, "roles")}/>
+            </CTFormInput>
             <CTFormInput name="caloriesPerDay"
                          label="Calories Per Day"
                          type="number"

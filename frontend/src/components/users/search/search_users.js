@@ -3,11 +3,12 @@ import _ from "lodash";
 import moment from "moment";
 import Loader from "react-loader";
 import React, {PropTypes} from "react";
-import {Button, Col, Glyphicon, Modal, Panel, Row, Table} from "react-bootstrap";
+import {Button, Col, Glyphicon, Label, Modal, Panel, Row, Table} from "react-bootstrap";
 import {CTAlert, CTConfirmModal, CTError, CTPaginator} from "../../../utility/components/_ct_components";
 import SelectUser from "../_components/select_user/select_user";
 import UserForm from "../_components/user_form/user_form";
 import usersService from "../_services/users_service";
+import userRoleService from "../_services/user_role_service";
 import {RESULTS_PER_PAGE} from "../../../utility/constants/ct_constants";
 
 class SearchUsers extends React.Component {
@@ -67,9 +68,13 @@ class SearchUsers extends React.Component {
     }
 
     renderUser(user = {}) {
-        let {_id, username, fullName, caloriesPerDay = 0, createdAt} = user;
+        let {_id, username, fullName, caloriesPerDay = 0, createdAt, roles = []} = user;
         return <tr key={_id}>
-            <td>{username}</td>
+            <td>
+                <div>{username}</div>
+                <div>{roles.map((role, key) => <Label bsStyle="primary" key={key}
+                                                      className="margin-right-5">{userRoleService.userRoleToLabel(role)}</Label>)}</div>
+            </td>
             <td>{fullName}</td>
             <td>{caloriesPerDay}</td>
             <td>{moment(createdAt).format("DD/MM/YYYY HH:mm")}</td>

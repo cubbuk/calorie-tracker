@@ -2,6 +2,10 @@ import _ from "lodash";
 
 class UserConstraints {
 
+    roles() {
+        return {roles: {presence: {message: "Please select a role"}}}
+    }
+
     username() {
         return {
             username: {
@@ -60,7 +64,7 @@ class UserConstraints {
     }
 
     userConstraints() {
-        return _.extend({}, this.username(), this.fullName(), this.caloriesPerDay());
+        return _.extend({}, this.roles(), this.username(), this.fullName(), this.caloriesPerDay());
     }
 
 }
