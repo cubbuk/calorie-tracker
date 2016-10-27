@@ -4,13 +4,14 @@ class TestUtility {
     constructor(){
         this.conn = mongoose.connect("mongodb://localhost/calorie_tracker_test_db");
     }
-    dropTestDatabase() {
+    dropTestDatabase(message) {
         return new Promise((resolve, reject) => {
             this.conn.connection.dropDatabase((err) => {
                 if (err) {
-                    console.log(err);
+                    console.log(new Date() + " - " + err);
                     reject(err);
                 } else {
+                    console.log(new Date() + "  " + message + "\n");
                     resolve();
                 }
             });
