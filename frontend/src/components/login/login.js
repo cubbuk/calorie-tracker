@@ -30,9 +30,8 @@ class Login extends React.Component {
                 if (location.state && location.state.nextPathname) {
                     router.replace({pathname: location.state.nextPathname, query: location.state.nextQuery})
                 } else {
-                    router.replace('/');
+                    router.replace("/");
                 }
-                this.setState({error: undefined, formSubmitted: true});
             })
             .catch(error => this.setState({error, formSubmitted: true}))
     }

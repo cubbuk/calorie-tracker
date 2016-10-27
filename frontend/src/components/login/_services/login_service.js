@@ -1,3 +1,4 @@
+import btoa from "btoa";
 import Promise from "bluebird";
 import validate from "validate.js";
 import baseApi from "../../../utility/services/base_api";
@@ -10,7 +11,15 @@ class LoginService {
         return Promise.try(() => {
             let validationResult = validate(user, loginConstraints.loginConstraints(), {fullMessages: false});
             if (!validationResult) {
-                return baseApi.login("login", user.username, user.password).then((result) => {
+                let {username, password} = user;
+                const auth = btoa(username + ":" + password); //BinaryToAsciiEncoding
+                return baseApi.send("login", {
+                    method: "POST", headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "authorization": auth
+                    }
+                }).then(result => {
                     if (result.authenticated) {
                         baseApi.setToken(result.token);
                         return appState.setUser(result.user);

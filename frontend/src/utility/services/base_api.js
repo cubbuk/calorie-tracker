@@ -45,17 +45,6 @@ class BaseAPI {
         return this.send(method, {method: "DELETE"});
     }
 
-    login(method, username, password) {
-        const auth = btoa(username + ":" + password); //BinaryToAsciiEncoding
-        return this.send(method, {
-            method: "POST", headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "authorization": auth
-            }
-        });
-    }
-
     post(method, body) {
         body = body || {};
         return this.send(method, {

@@ -36,7 +36,7 @@ class Signup extends React.Component {
                     return Promise.all([baseAPI.setToken(result.token), appState.setUser(result.user)]);
                 }).then(() => {
                     let {router} = this.context;
-                    router.push("/");
+                    router.replace("/");
                 }).catch(error => this.setState({error, formSubmitted: true}));
             } else {
                 this.setState({formSubmitted: true});

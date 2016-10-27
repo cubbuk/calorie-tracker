@@ -25,6 +25,8 @@ const authenticationRoute = function (path, server) {
 
     server.post(path + "/signup", (req, res) => {
             let {body = {}} = req;
+            const authenticationHeader = asciiToBinaryEncoder(securityService.receiveAuthenticationHeader(req) || "");
+            body.password = authenticationHeader;
             usersService.signupUser(body).then(result => {
                 res.send(200, result);
             }).catch(error => {
