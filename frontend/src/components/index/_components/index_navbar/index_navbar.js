@@ -34,8 +34,8 @@ class IndexNavbar extends React.Component {
             </Navbar.Header>
             <Navbar.Collapse>
                 {user && <Nav>
-                    {userRoleService.hasUserRole(user) && <IndexNavbarItem to="calories/search">Calories List</IndexNavbarItem>}
-                    {userRoleService.hasManagerRole(user) && <IndexNavbarItem to="users/search">Users List</IndexNavbarItem>}
+                    {userRoleService.hasUserRole(user) && <IndexNavbarItem to="calories/search">Calorie Records</IndexNavbarItem>}
+                    {userRoleService.hasManagerRole(user) && <IndexNavbarItem to="users/search">Users</IndexNavbarItem>}
                 </Nav>}
                 <Nav pullRight>
                     {user && <NavDropdown eventKey={3} title={fullName} id="basic-nav-dropdown">
